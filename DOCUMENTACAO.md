@@ -9,11 +9,17 @@
 
 ## v1.2.0 (22/02/2026) - Configurações e Dashboard
 - Implementação de Centro de Custos, Plano de Contas e Gestão de Usuários.
-- Dashboard com filtros de busca e visualização de dados.
+- Filtros de Dashboard integrados.
 
-## v1.3.0 (22/02/2026) - Redesign Elegante (Atual)
-- **Visual:** Interface moderna com efeito de vidro (Glassmorphism), sombras suaves e bordas arredondadas (16px).
-- **tlLogin:** Links "Esqueci minha senha" e "Primeiro acesso" reestilizados para botões de ação secundária discretos.
-- **Navegação:** Menu superior suspenso com efeito blur.
-- **Gráficos:** Espaço reservado para Chart.js na Dashboard.
-- **Regra de Escrita:** Mantidos todos os labels e campos solicitados anteriormente.
+## v1.3.0 (22/02/2026) - Redesign Elegante (BLOQUEADO)
+- Estilo: Glassmorphism (Neon Cyan & Dark Slate).
+- Status: Layout e textos protegidos contra alterações automáticas.
+
+## v1.4.0 (22/02/2026) - Gestão de Dados em Configurações (ATUAL)
+- **Visualização em Linha:** Adicionadas tabelas dinâmicas abaixo dos formulários de cadastro.
+- **Componentes:**
+    - `tlCentroCustos`: Grid com Sigla, Descrição e Status.
+    - `tlPlanoContas`: Grid com Descrição e Status.
+    - `tlUsuarios`: Grid com Nome, Usuário e Tipo de Acesso.
+- **Interatividade:** Clique na linha da tabela prepara o sistema para seleção/edição.
+- **Banco de Dados:** Versão 6 do IndexedDB com persistência total.

@@ -75,9 +75,7 @@
                     <button class="nav-item" onclick="abrirModulo('tlConfiguracoes')">Configurações</button>
                 </nav>
                 <div class="nav-right">
-                    <div class="user-badge">
-                        <span id="user-logged-info">---</span>
-                    </div>
+                    <div class="user-badge"><span id="user-logged-info">---</span></div>
                     <button class="btn-logout" onclick="logout()">Sair</button>
                 </div>
             </div>
@@ -85,28 +83,24 @@
         
         <main class="main-container">
             <div id="tlDashboard" class="modulo hidden">
-                <div class="section-header">
-                    <h2>Visão Geral</h2>
-                </div>
-                
+                <div class="section-header"><h2>Visão Geral</h2></div>
                 <div class="filter-panel card-ui">
                     <div class="field"><label>Data</label><input type="date"></div>
-                    <div class="field"><label>Descrição</label><input type="text" placeholder="Ex: Aluguel"></div>
+                    <div class="field"><label>Descrição</label><input type="text" placeholder="Filtrar descrição..."></div>
                     <div class="field"><label>Tipo</label><select><option>Todos</option><option>Receita</option><option>Despesa</option></select></div>
                     <div class="field"><label>Operação</label><select><option>Todas</option></select></div>
                     <div class="field"><label>Plano de Contas</label><select id="filtro-pc"><option>Todos</option></select></div>
                     <div class="field"><label>Centro de Custo</label><select id="filtro-cc"><option>Todos</option></select></div>
                 </div>
-
-                <div class="dashboard-layout">
-                    <div class="card-ui chart-wrapper">
-                        <h3>Distribuição de Gastos</h3>
-                        <div class="chart-area-placeholder">Gráfico de Pizza</div>
+                <div class="dashboard-content-grid">
+                    <div class="card-ui">
+                        <h3>Resultados</h3>
+                        <div class="chart-placeholder">Gráfico de Pizza</div>
                     </div>
-                    <div class="card-ui table-wrapper">
-                        <h3>Extrato de Lançamentos</h3>
+                    <div class="card-ui">
+                        <h3>Movimentações Recentes</h3>
                         <table class="modern-table">
-                            <thead><tr><th>Data</th><th>Descrição</th><th>Valor</th><th>Plano</th></tr></thead>
+                            <thead><tr><th>Data</th><th>Descrição</th><th>Valor</th></tr></thead>
                             <tbody></tbody>
                         </table>
                     </div>
@@ -114,9 +108,7 @@
             </div>
 
             <div id="tlConfiguracoes" class="modulo hidden">
-                <div class="section-header">
-                    <h2>Configurações</h2>
-                </div>
+                <div class="section-header"><h2>Configurações</h2></div>
                 <div class="tabs-modern">
                     <button onclick="abrirConfig('tlCentroCustos')">Centro de Custos</button>
                     <button onclick="abrirConfig('tlPlanoContas')">Plano de Contas</button>
@@ -124,49 +116,72 @@
                 </div>
 
                 <div id="tlCentroCustos" class="sub-modulo hidden">
-                    <form id="formCC" class="card-ui form-compact">
-                        <h3>Novo Centro de Custo</h3>
-                        <div class="field"><label>Descrição</label><input type="text" id="cc-desc" required></div>
-                        <div class="field"><label>Sigla</label><input type="text" id="cc-sigla" required></div>
-                        <label class="checkbox-ui"><input type="checkbox" id="cc-ativo" checked> <span>Ativo</span></label>
-                        <div class="actions">
-                            <button type="button" class="btn-cancel">Cancelar</button>
-                            <button type="submit" class="btn-save">Salvar</button>
+                    <div class="config-split">
+                        <form id="formCC" class="card-ui">
+                            <h3>Cadastro</h3>
+                            <div class="field"><label>Descrição</label><input type="text" id="cc-desc" required></div>
+                            <div class="field"><label>Sigla</label><input type="text" id="cc-sigla" required></div>
+                            <label class="checkbox-ui"><input type="checkbox" id="cc-ativo" checked> <span>Ativo</span></label>
+                            <div class="actions">
+                                <button type="button" class="btn-cancel" onclick="this.form.reset()">Cancelar</button>
+                                <button type="submit" class="btn-save">Salvar</button>
+                            </div>
+                        </form>
+                        <div class="card-ui list-container">
+                            <h3>Centro de Custos Cadastrados</h3>
+                            <table class="modern-table" id="tableCC">
+                                <thead><tr><th>Sigla</th><th>Descrição</th><th>Status</th></tr></thead>
+                                <tbody></tbody>
+                            </table>
                         </div>
-                    </form>
+                    </div>
                 </div>
 
                 <div id="tlPlanoContas" class="sub-modulo hidden">
-                    <form id="formPC" class="card-ui form-compact">
-                        <h3>Novo Plano de Contas</h3>
-                        <div class="field"><label>Descrição</label><input type="text" id="pc-desc" required></div>
-                        <label class="checkbox-ui"><input type="checkbox" id="pc-ativo" checked> <span>Ativo</span></label>
-                        <div class="actions">
-                            <button type="button" class="btn-cancel">Cancelar</button>
-                            <button type="submit" class="btn-save">Salvar</button>
+                    <div class="config-split">
+                        <form id="formPC" class="card-ui">
+                            <h3>Cadastro</h3>
+                            <div class="field"><label>Descrição</label><input type="text" id="pc-desc" required></div>
+                            <label class="checkbox-ui"><input type="checkbox" id="pc-ativo" checked> <span>Ativo</span></label>
+                            <div class="actions">
+                                <button type="button" class="btn-cancel" onclick="this.form.reset()">Cancelar</button>
+                                <button type="submit" class="btn-save">Salvar</button>
+                            </div>
+                        </form>
+                        <div class="card-ui list-container">
+                            <h3>Planos de Contas Cadastrados</h3>
+                            <table class="modern-table" id="tablePC">
+                                <thead><tr><th>Descrição</th><th>Status</th></tr></thead>
+                                <tbody></tbody>
+                            </table>
                         </div>
-                    </form>
+                    </div>
                 </div>
 
                 <div id="tlUsuarios" class="sub-modulo hidden">
-                    <form id="formUsr" class="card-ui form-compact">
-                        <h3>Gestão de Acesso</h3>
-                        <div class="field"><label>Nome Completo</label><input type="text" id="u-nome" required></div>
-                        <div class="field"><label>Usuário</label><input type="text" id="u-user" required></div>
-                        <div class="field"><label>Senha</label><input type="password" id="u-pass" required></div>
-                        <div class="field"><label>Confirmar Senha</label><input type="password" id="u-pass-conf" required></div>
-                        <div class="field">
-                            <label>Tipo de Acesso</label>
-                            <select id="u-tipo">
-                                <option value="Normal">Normal</option>
-                                <option value="Administrador">Administrador</option>
-                            </select>
+                    <div class="config-split">
+                        <form id="formUsr" class="card-ui">
+                            <h3>Cadastro de Usuário</h3>
+                            <div class="field"><label>Nome Completo</label><input type="text" id="u-nome" required></div>
+                            <div class="field"><label>Usuário (username)</label><input type="text" id="u-user" required></div>
+                            <div class="field"><label>Senha</label><input type="password" id="u-pass" required></div>
+                            <div class="field"><label>Confirmar senha</label><input type="password" id="u-pass-conf" required></div>
+                            <div class="field"><label>Tipo de acesso</label>
+                                <select id="u-tipo"><option value="Normal">Normal</option><option value="Administrador">Administrador</option></select>
+                            </div>
+                            <div class="actions">
+                                <button type="button" class="btn-cancel" onclick="this.form.reset()">Cancelar</button>
+                                <button type="submit" class="btn-save">Salvar</button>
+                            </div>
+                        </form>
+                        <div class="card-ui list-container">
+                            <h3>Usuários do Sistema</h3>
+                            <table class="modern-table" id="tableUsr">
+                                <thead><tr><th>Nome</th><th>Usuário</th><th>Tipo</th></tr></thead>
+                                <tbody></tbody>
+                            </table>
                         </div>
-                        <div class="actions">
-                            <button type="button" class="btn-cancel">Cancelar</button>
-                            <button type="submit" class="btn-save">Salvar</button>
-                        </div>
-                    </form>
+                    </div>
                 </div>
             </div>
         </main>
