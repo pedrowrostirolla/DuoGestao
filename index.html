@@ -3,52 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DuoGestão - Login</title>
+    <title>DuoGestão - Sistema Financeiro</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div id="login-container" class="central-flex">
-        <form id="login-form" class="card">
-            <h2>DuoGestão</h2>
-            <div class="input-group">
-                <label for="username">Usuário</label>
-                <input type="text" id="username" required>
-            </div>
-            <div class="input-group">
-                <label for="password">Senha</label>
-                <input type="password" id="password" required>
-            </div>
-            <div class="actions">
-                <button type="button" class="btn-cancel">Cancelar</button>
-                <button type="submit" class="btn-save">Salvar</button>
-            </div>
-        </form>
-    </div>
+    <section id="auth-wrapper">
+        <div id="tlLogin" class="auth-card">
+            <form id="formLogin">
+                <h1 class="brand">DuoGestão</h1>
+                <div class="field">
+                    <label for="login-user">Usuário (username)</label>
+                    <input type="text" id="login-user" required autocomplete="username">
+                </div>
+                <div class="field">
+                    <label for="login-pass">Senha</label>
+                    <input type="password" id="login-pass" required autocomplete="current-password">
+                </div>
+                <div class="helper-links">
+                    <a href="javascript:void(0)" onclick="navegarAuth('tlEsqueciMinhaSenha')">Esqueci minha senha</a>
+                    <a href="javascript:void(0)" onclick="navegarAuth('tlPrimeiroAcesso')">Primeiro acesso</a>
+                </div>
+                <div class="actions">
+                    <button type="button" class="btn-cancel" onclick="limparLogin()">Cancelar</button>
+                    <button type="submit" class="btn-save">Salvar</button>
+                </div>
+            </form>
+        </div>
 
-    <div id="main-layout" class="hidden">
-        <aside class="sidebar">
-            <h1 class="logo">DuoGestão</h1>
-            <nav>
-                <ul>
-                    <li data-page="dashboard">Dashboard</li>
-                    <li data-page="movimentacoes">Movimentações</li>
-                    <li data-page="planejamentos">Planejamentos</li>
-                    <li data-page="investimentos">Investimentos</li>
-                    <li data-page="configuracoes">Configurações</li>
-                </ul>
+        <div id="tlPrimeiroAcesso" class="auth-card hidden">
+            <form id="formPrimeiroAcesso">
+                <h2>Primeiro Acesso</h2>
+                <div class="field"><label>Nome completo</label><input type="text" id="reg-nome" required></div>
+                <div class="field"><label>Usuário (username)</label><input type="text" id="reg-user" required></div>
+                <div class="field"><label>Senha</label><input type="password" id="reg-pass" required></div>
+                <div class="field"><label>Confirmar senha</label><input type="password" id="reg-pass-conf" required></div>
+                <div class="actions">
+                    <button type="button" class="btn-cancel" onclick="navegarAuth('tlLogin')">Cancelar</button>
+                    <button type="submit" class="btn-save">Salvar</button>
+                </div>
+            </form>
+        </div>
+
+        <div id="tlEsqueciMinhaSenha" class="auth-card hidden">
+            <form id="formEsqueciSenha">
+                <h2>Alterar Senha</h2>
+                <div class="field"><label>Usuário (username)</label><input type="text" id="reset-user" required></div>
+                <div class="field"><label>Nova Senha</label><input type="password" id="reset-pass" required></div>
+                <div class="field"><label>Confirmar senha</label><input type="password" id="reset-pass-conf" required></div>
+                <div class="actions">
+                    <button type="button" class="btn-cancel" onclick="navegarAuth('tlLogin')">Cancelar</button>
+                    <button type="submit" class="btn-save">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <section id="tlDashboard" class="hidden">
+        <header class="navbar">
+            <div class="nav-left">
+                <span class="brand">DuoGestão</span>
+            </div>
+            <nav class="nav-center">
+                <button class="menu-btn active">Dashboard</button>
+                <button class="menu-btn">Movimentações</button>
+                <button class="menu-btn">Planejamentos</button>
+                <button class="menu-btn">Investimentos</button>
+                <button class="menu-btn">Configurações</button>
             </nav>
-        </aside>
-        <main class="content">
-            <header id="content-header">
-                <h2 id="page-title">Dashboard</h2>
-            </header>
-            <section id="view-port">
-                </section>
+            <div class="nav-right">
+                <span id="user-logged-name">---</span>
+                <button class="btn-exit" onclick="logout()">Sair</button>
+            </div>
+        </header>
+        
+        <main class="main-view">
+            <div class="welcome-area">
+                <h1>Painel de Controle</h1>
+                <p>Bem-vindo ao seu resumo financeiro.</p>
+            </div>
         </main>
-    </div>
+    </section>
 
-    <div id="toast-container"></div>
+    <div id="toast-area"></div>
 
     <script src="script.js"></script>
 </body>
