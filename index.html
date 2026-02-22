@@ -16,52 +16,19 @@
                     <h1 class="brand">Duo<span>Gestão</span></h1>
                     <p>Bem-vindo de volta</p>
                 </div>
-                <div class="field">
-                    <label>Usuário</label>
-                    <input type="text" id="login-user" placeholder="Seu username" required>
-                </div>
-                <div class="field">
-                    <label>Senha</label>
-                    <input type="password" id="login-pass" placeholder="••••••••" required>
-                </div>
+                <div class="field"><label>Usuário</label><input type="text" id="login-user" required></div>
+                <div class="field"><label>Senha</label><input type="password" id="login-pass" required></div>
                 <div class="auth-helper-grid">
                     <button type="button" class="btn-link" onclick="navegarAuth('tlEsqueciMinhaSenha')">Esqueci minha senha</button>
                     <button type="button" class="btn-link" onclick="navegarAuth('tlPrimeiroAcesso')">Primeiro acesso</button>
                 </div>
                 <div class="actions">
-                    <button type="button" class="btn-cancel" onclick="this.form.reset()">Cancelar</button>
+                    <button type="button" class="btn-cancel">Cancelar</button>
                     <button type="submit" class="btn-save">Entrar</button>
                 </div>
             </form>
         </div>
-
-        <div id="tlPrimeiroAcesso" class="glass-card hidden">
-            <form id="formPrimeiroAcesso">
-                <h2>Crie sua conta</h2>
-                <div class="field"><label>Nome completo</label><input type="text" id="reg-nome" required></div>
-                <div class="field"><label>Usuário (username)</label><input type="text" id="reg-user" required></div>
-                <div class="field"><label>Senha</label><input type="password" id="reg-pass" required></div>
-                <div class="field"><label>Confirmar senha</label><input type="password" id="reg-pass-conf" required></div>
-                <div class="actions">
-                    <button type="button" class="btn-cancel" onclick="navegarAuth('tlLogin')">Cancelar</button>
-                    <button type="submit" class="btn-save">Salvar</button>
-                </div>
-            </form>
-        </div>
-
-        <div id="tlEsqueciMinhaSenha" class="glass-card hidden">
-            <form id="formEsqueciSenha">
-                <h2>Recuperar Acesso</h2>
-                <div class="field"><label>Usuário (username)</label><input type="text" id="reset-user" required></div>
-                <div class="field"><label>Nova Senha</label><input type="password" id="reset-pass" required></div>
-                <div class="field"><label>Confirmar senha</label><input type="password" id="reset-pass-conf" required></div>
-                <div class="actions">
-                    <button type="button" class="btn-cancel" onclick="navegarAuth('tlLogin')">Cancelar</button>
-                    <button type="submit" class="btn-save">Salvar</button>
-                </div>
-            </form>
-        </div>
-    </section>
+        </section>
 
     <section id="tlApp" class="hidden">
         <header class="navbar-modern">
@@ -69,9 +36,9 @@
                 <div class="nav-left"><span class="brand">Duo<span>Gestão</span></span></div>
                 <nav class="nav-center">
                     <button class="nav-item" onclick="abrirModulo('tlDashboard')">Dashboard</button>
-                    <button class="nav-item">Movimentações</button>
-                    <button class="nav-item">Planejamentos</button>
-                    <button class="nav-item">Investimentos</button>
+                    <button class="nav-item" onclick="abrirModulo('tlMovimentacoes')">Movimentações</button>
+                    <button class="nav-item" onclick="abrirModulo('tlPlanejamentos')">Planejamento</button>
+                    <button class="nav-item" onclick="abrirModulo('tlInvestimentos')">Investimentos</button>
                     <button class="nav-item" onclick="abrirModulo('tlConfiguracoes')">Configurações</button>
                 </nav>
                 <div class="nav-right">
@@ -86,25 +53,98 @@
                 <div class="section-header"><h2>Visão Geral</h2></div>
                 <div class="filter-panel card-ui">
                     <div class="field"><label>Data</label><input type="date"></div>
-                    <div class="field"><label>Descrição</label><input type="text" placeholder="Filtrar descrição..."></div>
-                    <div class="field"><label>Tipo</label><select><option>Todos</option><option>Receita</option><option>Despesa</option></select></div>
+                    <div class="field"><label>Descrição</label><input type="text"></div>
+                    <div class="field"><label>Tipo</label><select><option>Todos</option></select></div>
                     <div class="field"><label>Operação</label><select><option>Todas</option></select></div>
-                    <div class="field"><label>Plano de Contas</label><select id="filtro-pc"><option>Todos</option></select></div>
-                    <div class="field"><label>Centro de Custo</label><select id="filtro-cc"><option>Todos</option></select></div>
+                    <div class="field"><label>Plano de Contas</label><select id="dash-pc"></select></div>
+                    <div class="field"><label>Centro de Custo</label><select id="dash-cc"></select></div>
                 </div>
-                <div class="dashboard-content-grid">
-                    <div class="card-ui">
-                        <h3>Resultados</h3>
-                        <div class="chart-placeholder">Gráfico de Pizza</div>
-                    </div>
-                    <div class="card-ui">
-                        <h3>Movimentações Recentes</h3>
-                        <table class="modern-table">
-                            <thead><tr><th>Data</th><th>Descrição</th><th>Valor</th></tr></thead>
-                            <tbody></tbody>
-                        </table>
+            </div>
+
+            <div id="tlMovimentacoes" class="modulo hidden">
+                <div class="section-header">
+                    <h2>Movimentações</h2>
+                    <div class="actions">
+                        <button class="btn-save" onclick="abrirModulo('tlNovaMovimentacao')">Adicionar</button>
+                        <button class="btn-cancel" style="border-color: var(--danger); color: var(--danger)" onclick="excluirSelecionados('movimentacoes')">Excluir</button>
                     </div>
                 </div>
+                <div class="card-ui">
+                    <table class="modern-table" id="tableMov">
+                        <thead><tr><th><input type="checkbox" onclick="toggleSelectAll(this, 'tableMov')"></th><th>Data</th><th>Descrição</th><th>Valor</th><th>Operação</th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="tlNovaMovimentacao" class="modulo hidden">
+                <div class="section-header"><h2>Nova Movimentação</h2></div>
+                <form id="formNovaMov" class="card-ui" style="max-width: 600px; margin: auto;">
+                    <div class="field"><label>Data</label><input type="date" id="m-data" required></div>
+                    <div class="field"><label>Descrição</label><input type="text" id="m-desc" required></div>
+                    <div class="field"><label>Valor (R$)</label><input type="number" step="0.01" id="m-valor" required></div>
+                    <div class="field">
+                        <label>Tipo</label>
+                        <select id="m-tipo" onchange="toggleFixaFields(this.value)">
+                            <option value="Variável">Variável</option>
+                            <option value="Fixa">Fixa</option>
+                        </select>
+                    </div>
+                    <div id="campos-fixa" class="hidden">
+                        <div class="field"><label>Mês início</label><div class="month-grid" id="m-mes-inicio"></div></div>
+                        <div class="field"><label>Mês fim</label><div class="month-grid" id="m-mes-fim"></div></div>
+                    </div>
+                    <div class="field">
+                        <label>Operação</label>
+                        <select id="m-operacao">
+                            <option value="Entrada">Entrada</option>
+                            <option value="Saída">Saída</option>
+                            <option value="Investimento">Investimento</option>
+                        </select>
+                    </div>
+                    <div class="field"><label>Plano de contas</label><select id="m-pc"></select></div>
+                    <div class="field"><label>Centro de custo</label><select id="m-cc"></select></div>
+                    <div class="actions">
+                        <button type="button" class="btn-cancel" onclick="abrirModulo('tlMovimentacoes')">Cancelar</button>
+                        <button type="submit" class="btn-save">Salvar</button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="tlPlanejamentos" class="modulo hidden">
+                <div class="section-header"><h2>Planejamento Anual</h2></div>
+                <div id="lista-planejamento"></div>
+            </div>
+
+            <div id="tlInvestimentos" class="modulo hidden">
+                <div class="section-header">
+                    <h2>Investimentos</h2>
+                    <div class="actions">
+                        <button class="btn-save" onclick="abrirModulo('tlNovoInvestimento')">Adicionar</button>
+                        <button class="btn-cancel" style="border-color: var(--danger); color: var(--danger)" onclick="excluirSelecionados('investimentos')">Excluir</button>
+                    </div>
+                </div>
+                <div class="card-ui">
+                    <table class="modern-table" id="tableInv">
+                        <thead><tr><th><input type="checkbox" onclick="toggleSelectAll(this, 'tableInv')"></th><th>Descrição</th><th>Valor</th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="tlNovoInvestimento" class="modulo hidden">
+                <div class="section-header"><h2>Novo Investimento</h2></div>
+                <form id="formNovoInv" class="card-ui" style="max-width: 600px; margin: auto;">
+                    <div class="field"><label>Descrição</label><input type="text" id="i-desc" required></div>
+                    <div class="field"><label>Duração (Meses)</label><div class="month-grid" id="i-duracao"></div></div>
+                    <div class="field"><label>Valor (R$)</label><input type="number" step="0.01" id="i-valor" required></div>
+                    <div class="field"><label>Plano de contas</label><select id="i-pc"></select></div>
+                    <div class="field"><label>Centro de custo</label><select id="i-cc"></select></div>
+                    <div class="actions">
+                        <button type="button" class="btn-cancel" onclick="abrirModulo('tlInvestimentos')">Cancelar</button>
+                        <button type="submit" class="btn-save">Salvar</button>
+                    </div>
+                </form>
             </div>
 
             <div id="tlConfiguracoes" class="modulo hidden">
@@ -113,73 +153,19 @@
                     <button onclick="abrirConfig('tlCentroCustos')">Centro de Custos</button>
                     <button onclick="abrirConfig('tlPlanoContas')">Plano de Contas</button>
                     <button onclick="abrirConfig('tlUsuarios')">Usuários</button>
+                    <button onclick="abrirConfig('tlBackup')">Backup</button>
                 </div>
-
-                <div id="tlCentroCustos" class="sub-modulo hidden">
-                    <div class="config-split">
-                        <form id="formCC" class="card-ui">
-                            <h3>Cadastro</h3>
-                            <div class="field"><label>Descrição</label><input type="text" id="cc-desc" required></div>
-                            <div class="field"><label>Sigla</label><input type="text" id="cc-sigla" required></div>
-                            <label class="checkbox-ui"><input type="checkbox" id="cc-ativo" checked> <span>Ativo</span></label>
-                            <div class="actions">
-                                <button type="button" class="btn-cancel" onclick="this.form.reset()">Cancelar</button>
-                                <button type="submit" class="btn-save">Salvar</button>
+                <div id="tlBackup" class="sub-modulo hidden">
+                    <div class="card-ui">
+                        <h3>Exportar / Importar Dados</h3>
+                        <p style="margin-bottom: 20px; color: var(--text-dim)">Salve seus dados em um arquivo JSON ou restaure um backup existente.</p>
+                        <div class="actions" style="flex-direction: column; gap: 20px;">
+                            <button class="btn-save" onclick="exportarBackup()">Exportar JSON</button>
+                            <div style="border-top: 1px solid var(--glass-border); padding-top: 20px;">
+                                <label class="btn-cancel" style="display: block; text-align: center; cursor: pointer;">
+                                    Importar JSON <input type="file" id="importFile" hidden onchange="importarBackup(this)">
+                                </label>
                             </div>
-                        </form>
-                        <div class="card-ui list-container">
-                            <h3>Centro de Custos Cadastrados</h3>
-                            <table class="modern-table" id="tableCC">
-                                <thead><tr><th>Sigla</th><th>Descrição</th><th>Status</th></tr></thead>
-                                <tbody></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="tlPlanoContas" class="sub-modulo hidden">
-                    <div class="config-split">
-                        <form id="formPC" class="card-ui">
-                            <h3>Cadastro</h3>
-                            <div class="field"><label>Descrição</label><input type="text" id="pc-desc" required></div>
-                            <label class="checkbox-ui"><input type="checkbox" id="pc-ativo" checked> <span>Ativo</span></label>
-                            <div class="actions">
-                                <button type="button" class="btn-cancel" onclick="this.form.reset()">Cancelar</button>
-                                <button type="submit" class="btn-save">Salvar</button>
-                            </div>
-                        </form>
-                        <div class="card-ui list-container">
-                            <h3>Planos de Contas Cadastrados</h3>
-                            <table class="modern-table" id="tablePC">
-                                <thead><tr><th>Descrição</th><th>Status</th></tr></thead>
-                                <tbody></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="tlUsuarios" class="sub-modulo hidden">
-                    <div class="config-split">
-                        <form id="formUsr" class="card-ui">
-                            <h3>Cadastro de Usuário</h3>
-                            <div class="field"><label>Nome Completo</label><input type="text" id="u-nome" required></div>
-                            <div class="field"><label>Usuário (username)</label><input type="text" id="u-user" required></div>
-                            <div class="field"><label>Senha</label><input type="password" id="u-pass" required></div>
-                            <div class="field"><label>Confirmar senha</label><input type="password" id="u-pass-conf" required></div>
-                            <div class="field"><label>Tipo de acesso</label>
-                                <select id="u-tipo"><option value="Normal">Normal</option><option value="Administrador">Administrador</option></select>
-                            </div>
-                            <div class="actions">
-                                <button type="button" class="btn-cancel" onclick="this.form.reset()">Cancelar</button>
-                                <button type="submit" class="btn-save">Salvar</button>
-                            </div>
-                        </form>
-                        <div class="card-ui list-container">
-                            <h3>Usuários do Sistema</h3>
-                            <table class="modern-table" id="tableUsr">
-                                <thead><tr><th>Nome</th><th>Usuário</th><th>Tipo</th></tr></thead>
-                                <tbody></tbody>
-                            </table>
                         </div>
                     </div>
                 </div>

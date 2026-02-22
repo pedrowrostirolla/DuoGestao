@@ -1,170 +1,215 @@
-// --- DuoGestão Core System ---
 let db;
 let sessionUser = null;
+const mesesNome = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
 
-// Inicialização do Banco de Dados v6
-const dbRequest = indexedDB.open("DuoGestaoDB", 6);
+const dbRequest = indexedDB.open("DuoGestaoDB", 7);
 
 dbRequest.onupgradeneeded = (e) => {
     db = e.target.result;
-    const schemas = [
-        { name: "usuarios", key: "usuario" },
-        { name: "centroCustos", key: "sigla" },
-        { name: "planoContas", key: "descricao" }
-    ];
-
-    schemas.forEach(s => {
-        if (!db.objectStoreNames.contains(s.name)) {
-            db.createObjectStore(s.name, { keyPath: s.key });
+    const stores = ["usuarios", "centroCustos", "planoContas", "movimentacoes", "investimentos"];
+    stores.forEach(s => {
+        if (!db.objectStoreNames.contains(s)) {
+            const pk = (s === 'usuarios') ? 'usuario' : (s === 'centroCustos' ? 'sigla' : (s === 'movimentacoes' || s === 'investimentos' ? 'id' : 'descricao'));
+            db.createObjectStore(s, { keyPath: pk, autoIncrement: (s === 'movimentacoes' || s === 'investimentos') });
         }
     });
-
-    // Usuário Administrador Mestre
-    const tx = e.target.transaction.objectStore("usuarios");
-    tx.put({ usuario: "administrador", senha: "Vdabrasil@1234", nome: "Administrador", tipo: "Administrador" });
 };
 
 dbRequest.onsuccess = (e) => {
     db = e.target.result;
-    console.log("DuoGestão DB Conectado.");
-    if (sessionUser) renderAllGrids();
+    initMonthGrids();
 };
 
-// --- Gerenciamento de Interface ---
-function navegarAuth(id) {
-    document.querySelectorAll('.glass-card').forEach(c => c.classList.add('hidden'));
-    document.getElementById(id).classList.remove('hidden');
-}
-
+// --- NAVEGAÇÃO E UI ---
 function abrirModulo(id) {
     document.querySelectorAll('.modulo').forEach(m => m.classList.add('hidden'));
     document.getElementById(id).classList.remove('hidden');
-    if(id === 'tlConfiguracoes') renderAllGrids();
+    if(id === 'tlMovimentacoes') renderMovimentacoes();
+    if(id === 'tlInvestimentos') renderInvestimentos();
+    if(id === 'tlPlanejamentos') renderPlanejamento();
+    if(id.includes('Nova') || id.includes('Novo')) popularSelects();
 }
 
 function abrirConfig(id) {
     document.querySelectorAll('.sub-modulo').forEach(s => s.classList.add('hidden'));
     document.getElementById(id).classList.remove('hidden');
-    renderAllGrids();
 }
 
 function showToast(msg) {
     const area = document.getElementById('toast-area');
-    const t = document.createElement('div');
-    t.className = 'toast'; t.innerText = msg;
-    area.appendChild(t);
-    setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 500); }, 3000);
+    const t = document.createElement('div'); t.className = 'toast'; t.innerText = msg;
+    area.appendChild(t); setTimeout(() => t.remove(), 3000);
 }
 
-// --- Renderização Dinâmica de Grids ---
-function updateTable(storeName, tableId, columns) {
-    const tbody = document.querySelector(`#${tableId} tbody`);
-    if (!tbody) return;
-    tbody.innerHTML = "";
+// --- LOGICA DE MESES ---
+function initMonthGrids() {
+    const grids = ['m-mes-inicio', 'm-mes-fim', 'i-duracao'];
+    grids.forEach(id => {
+        const el = document.getElementById(id);
+        if(!el) return;
+        el.innerHTML = mesesNome.map((m, i) => `
+            <label class="month-item"><input type="checkbox" value="${m}"> ${m}</label>
+        `).join('');
+    });
+}
 
-    const tx = db.transaction(storeName, "readonly").objectStore(storeName).openCursor();
-    tx.onsuccess = (e) => {
+function toggleFixaFields(val) {
+    document.getElementById('campos-fixa').className = (val === 'Fixa') ? '' : 'hidden';
+}
+
+// --- MOVIMENTAÇÕES ---
+document.getElementById('formNovaMov').onsubmit = (e) => {
+    e.preventDefault();
+    const fixa = document.getElementById('m-tipo').value === 'Fixa';
+    const mov = {
+        data: document.getElementById('m-data').value,
+        descricao: document.getElementById('m-desc').value,
+        valor: parseFloat(document.getElementById('m-valor').value),
+        tipo: document.getElementById('m-tipo').value,
+        operacao: document.getElementById('m-operacao').value,
+        pc: document.getElementById('m-pc').value,
+        cc: document.getElementById('m-cc').value,
+        mesesInicio: fixa ? getCheckedMonths('m-mes-inicio') : [],
+        mesesFim: fixa ? getCheckedMonths('m-mes-fim') : []
+    };
+    const tx = db.transaction("movimentacoes", "readwrite").objectStore("movimentacoes").add(mov);
+    tx.onsuccess = () => { showToast("Movimentação salva!"); abrirModulo('tlMovimentacoes'); };
+};
+
+function renderMovimentacoes() {
+    const tbody = document.querySelector("#tableMov tbody");
+    tbody.innerHTML = "";
+    db.transaction("movimentacoes").objectStore("movimentacoes").openCursor().onsuccess = (e) => {
         const cursor = e.target.result;
-        if (cursor) {
+        if(cursor) {
             const tr = document.createElement('tr');
-            tr.innerHTML = columns.map(col => {
-                let val = cursor.value[col];
-                if (col === 'ativo') val = val ? "Ativo" : "Inativo";
-                return `<td>${val}</td>`;
-            }).join('');
-            
-            // Seleção para edição futura
-            tr.onclick = () => carregarDadosEdicao(storeName, cursor.value);
-            
+            tr.className = `color-${cursor.value.operacao}`;
+            tr.innerHTML = `
+                <td><input type="checkbox" value="${cursor.value.id}"></td>
+                <td>${cursor.value.data}</td>
+                <td>${cursor.value.descricao}</td>
+                <td>R$ ${cursor.value.valor.toFixed(2)}</td>
+                <td>${cursor.value.operacao}</td>
+            `;
+            tr.onclick = (ev) => { if(ev.target.type !== 'checkbox') console.log("Editar ID:", cursor.value.id); };
             tbody.appendChild(tr);
             cursor.continue();
         }
     };
 }
 
-function renderAllGrids() {
-    updateTable("centroCustos", "tableCC", ["sigla", "descricao", "ativo"]);
-    updateTable("planoContas", "tablePC", ["descricao", "ativo"]);
-    updateTable("usuarios", "tableUsr", ["nome", "usuario", "tipo"]);
+// --- PLANEJAMENTO ---
+function renderPlanejamento() {
+    const container = document.getElementById('lista-planejamento');
+    container.innerHTML = "";
+    const ano = 2026;
+
+    mesesNome.forEach(mes => {
+        const div = document.createElement('div');
+        div.className = 'plan-month';
+        div.innerHTML = `<div class="plan-header" onclick="this.nextElementSibling.classList.toggle('hidden')">
+            <span>${mes}/${ano}</span> <span>+</span>
+        </div><div class="plan-content hidden" id="plan-${mes}">Carregando...</div>`;
+        container.appendChild(div);
+
+        const content = div.querySelector('.plan-content');
+        db.transaction("movimentacoes").objectStore("movimentacoes").getAll().onsuccess = (e) => {
+            const fixas = e.target.result.filter(m => m.tipo === 'Fixa' && m.mesesInicio.includes(mes));
+            content.innerHTML = fixas.length ? fixas.map(f => `<div>${f.descricao} - R$ ${f.valor.toFixed(2)}</div>`).join('') : "Nenhuma fixa para este mês.";
+        };
+    });
 }
 
-// --- Operações de Cadastro ---
-
-// Centro de Custos
-document.getElementById('formCC').onsubmit = (e) => {
+// --- INVESTIMENTOS ---
+document.getElementById('formNovoInv').onsubmit = (e) => {
     e.preventDefault();
-    const obj = {
-        descricao: document.getElementById('cc-desc').value,
-        sigla: document.getElementById('cc-sigla').value,
-        ativo: document.getElementById('cc-ativo').checked
+    const inv = {
+        descricao: document.getElementById('i-desc').value,
+        valor: parseFloat(document.getElementById('i-valor').value),
+        duracao: getCheckedMonths('i-duracao'),
+        pc: document.getElementById('i-pc').value,
+        cc: document.getElementById('i-cc').value
     };
-    db.transaction("centroCustos", "readwrite").objectStore("centroCustos").put(obj).onsuccess = () => {
-        showToast("Centro de custo salvo!");
-        e.target.reset();
-        renderAllGrids();
+    db.transaction("investimentos", "readwrite").objectStore("investimentos").add(inv).onsuccess = () => {
+        showToast("Investimento salvo!"); abrirModulo('tlInvestimentos');
     };
 };
 
-// Plano de Contas
-document.getElementById('formPC').onsubmit = (e) => {
-    e.preventDefault();
-    const obj = {
-        descricao: document.getElementById('pc-desc').value,
-        ativo: document.getElementById('pc-ativo').checked
-    };
-    db.transaction("planoContas", "readwrite").objectStore("planoContas").put(obj).onsuccess = () => {
-        showToast("Plano de contas salvo!");
-        e.target.reset();
-        renderAllGrids();
-    };
-};
-
-// Usuários
-document.getElementById('formUsr').onsubmit = (e) => {
-    e.preventDefault();
-    const p1 = document.getElementById('u-pass').value;
-    const p2 = document.getElementById('u-pass-conf').value;
-    const tipo = document.getElementById('u-tipo').value;
-
-    if (p1 !== p2) return showToast("Senhas não conferem.");
-    if (tipo === "Administrador" && sessionUser.tipo !== "Administrador") {
-        return showToast("Acesso negado para criar Administradores.");
-    }
-
-    const obj = {
-        nome: document.getElementById('u-nome').value,
-        usuario: document.getElementById('u-user').value,
-        senha: p1,
-        tipo: tipo
-    };
-
-    db.transaction("usuarios", "readwrite").objectStore("usuarios").put(obj).onsuccess = () => {
-        showToast("Usuário registrado!");
-        e.target.reset();
-        renderAllGrids();
-    };
-};
-
-// --- Sistema de Login ---
-document.getElementById('formLogin').onsubmit = (e) => {
-    e.preventDefault();
-    const u = document.getElementById('login-user').value;
-    const p = document.getElementById('login-pass').value;
-
-    // Login especial Admin Mestre ou consulta DB
-    const tx = db.transaction("usuarios", "readonly").objectStore("usuarios").get(u);
-    tx.onsuccess = () => {
-        const user = tx.result;
-        if ((u === 'administrador' && p === 'Vdabrasil@1234') || (user && user.senha === p)) {
-            sessionUser = user || { nome: "Mestre", tipo: "Administrador" };
-            document.getElementById('user-logged-info').innerText = sessionUser.nome;
-            document.getElementById('auth-wrapper').classList.add('hidden');
-            document.getElementById('tlApp').classList.remove('hidden');
-            abrirModulo('tlDashboard');
-        } else {
-            showToast("Usuário ou senha inválidos.");
+function renderInvestimentos() {
+    const tbody = document.querySelector("#tableInv tbody");
+    tbody.innerHTML = "";
+    db.transaction("investimentos").objectStore("investimentos").openCursor().onsuccess = (e) => {
+        const cursor = e.target.result;
+        if(cursor) {
+            tbody.innerHTML += `<tr>
+                <td><input type="checkbox" value="${cursor.value.id}"></td>
+                <td>${cursor.value.descricao}</td>
+                <td>R$ ${cursor.value.valor.toFixed(2)}</td>
+            </tr>`;
+            cursor.continue();
         }
     };
-};
+}
+
+// --- BACKUP ---
+async function exportarBackup() {
+    const data = {};
+    const stores = ["usuarios", "centroCustos", "planoContas", "movimentacoes", "investimentos"];
+    for (let s of stores) {
+        data[s] = await new Promise(res => {
+            db.transaction(s).objectStore(s).getAll().onsuccess = (e) => res(e.target.result);
+        });
+    }
+    const blob = new Blob([JSON.stringify(data)], {type: "application/json"});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `DuoGestao_Backup_${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+}
+
+function importarBackup(input) {
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+        const data = JSON.parse(e.target.result);
+        for(let s in data) {
+            const tx = db.transaction(s, "readwrite").objectStore(s);
+            data[s].forEach(item => tx.put(item));
+        }
+        showToast("Backup importado!");
+        setTimeout(() => location.reload(), 1000);
+    };
+    reader.readAsText(input.files[0]);
+}
+
+// --- AUXILIARES ---
+function getCheckedMonths(id) {
+    return Array.from(document.querySelectorAll(`#${id} input:checked`)).map(i => i.value);
+}
+
+function popularSelects() {
+    const pcSelects = ['m-pc', 'i-pc', 'dash-pc'];
+    const ccSelects = ['m-cc', 'i-cc', 'dash-cc'];
+    
+    db.transaction("planoContas").objectStore("planoContas").getAll().onsuccess = (e) => {
+        const options = e.target.result.map(i => `<option value="${i.descricao}">${i.descricao}</option>`).join('');
+        pcSelects.forEach(s => { const el = document.getElementById(s); if(el) el.innerHTML = options; });
+    };
+    db.transaction("centroCustos").objectStore("centroCustos").getAll().onsuccess = (e) => {
+        const options = e.target.result.map(i => `<option value="${i.sigla}">${i.descricao}</option>`).join('');
+        ccSelects.forEach(s => { const el = document.getElementById(s); if(el) el.innerHTML = options; });
+    };
+}
+
+function toggleSelectAll(source, tableId) {
+    document.querySelectorAll(`#${tableId} tbody input[type="checkbox"]`).forEach(c => c.checked = source.checked);
+}
+
+function excluirSelecionados(storeName) {
+    const ids = Array.from(document.querySelectorAll('.modulo:not(.hidden) table tbody input:checked')).map(i => parseInt(i.value));
+    if(!ids.length) return showToast("Selecione itens para excluir.");
+    const tx = db.transaction(storeName, "readwrite");
+    ids.forEach(id => tx.objectStore(storeName).delete(id));
+    tx.oncomplete = () => { showToast("Excluído!"); abrirModulo('tl'+storeName.charAt(0).toUpperCase() + storeName.slice(1)); };
+}
 
 function logout() { location.reload(); }

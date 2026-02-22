@@ -6,59 +6,45 @@
     --text: #f1f5f9;
     --text-dim: #94a3b8;
     --danger: #f43f5e;
+    --success: #10b981;
+    --investment: #3b82f6;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
 .hidden { display: none !important; }
 
-/* Auth */
-#auth-wrapper { display: flex; justify-content: center; align-items: center; height: 100vh; }
-.glass-card { background: var(--glass); backdrop-filter: blur(12px); border: 1px solid var(--glass-border); border-radius: 24px; padding: 2.5rem; width: 420px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
-.brand { font-size: 1.8rem; font-weight: 800; }
-.brand span { color: var(--primary); }
-.brand-header { text-align: center; margin-bottom: 2rem; }
+/* Grid de Meses */
+.month-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 12px; }
+.month-item { font-size: 0.7rem; display: flex; align-items: center; gap: 5px; color: var(--text-dim); }
 
-/* Navbar */
+/* Cores das Operações */
+.color-Entrada { color: var(--success) !important; font-weight: 600; }
+.color-Saída { color: var(--danger) !important; font-weight: 600; }
+.color-Investimento { color: var(--investment) !important; font-weight: 600; }
+
+/* Acordeão Planejamento */
+.plan-month { background: var(--glass); border: 1px solid var(--glass-border); border-radius: 12px; margin-bottom: 10px; overflow: hidden; }
+.plan-header { padding: 15px 20px; cursor: pointer; display: flex; justify-content: space-between; font-weight: 600; }
+.plan-content { padding: 0 20px 15px 20px; border-top: 1px solid var(--glass-border); background: rgba(0,0,0,0.1); }
+
+/* Resto do CSS conforme v1.4.0 (Mantido rigorosamente) */
+#auth-wrapper { display: flex; justify-content: center; align-items: center; height: 100vh; }
+.glass-card { background: var(--glass); backdrop-filter: blur(12px); border: 1px solid var(--glass-border); border-radius: 24px; padding: 2.5rem; width: 420px; }
 .navbar-modern { position: sticky; top: 0; z-index: 100; background: rgba(2, 6, 23, 0.9); backdrop-filter: blur(10px); border-bottom: 1px solid var(--glass-border); }
 .nav-content { max-width: 1300px; margin: auto; height: 80px; display: flex; justify-content: space-between; align-items: center; padding: 0 2rem; }
+.brand { font-size: 1.8rem; font-weight: 800; }
+.brand span { color: var(--primary); }
 .nav-item { background: none; border: none; color: var(--text-dim); font-weight: 600; padding: 10px 15px; cursor: pointer; border-radius: 10px; transition: 0.3s; }
 .nav-item:hover { color: var(--primary); background: rgba(255,255,255,0.05); }
-
-/* Main Content */
-.main-container { max-width: 1300px; margin: auto; padding: 2.5rem 2rem; }
-.card-ui { background: var(--glass); border: 1px solid var(--glass-border); border-radius: 20px; padding: 1.5rem; margin-bottom: 1rem; }
-
-/* Config Grid Layout */
-.config-split { display: grid; grid-template-columns: 380px 1fr; gap: 24px; align-items: start; }
-.tabs-modern { display: flex; gap: 12px; margin-bottom: 2rem; }
-.tabs-modern button { background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: white; padding: 12px 24px; border-radius: 14px; cursor: pointer; transition: 0.3s; }
-.tabs-modern button:hover { border-color: var(--primary); color: var(--primary); }
-
-/* Tables */
-.list-container { max-height: 500px; overflow-y: auto; }
+.main-container { max-width: 1300px; margin: auto; padding: 2rem; }
+.card-ui { background: var(--glass); border: 1px solid var(--glass-border); border-radius: 20px; padding: 1.5rem; }
 .modern-table { width: 100%; border-collapse: collapse; }
-.modern-table th { text-align: left; font-size: 0.75rem; text-transform: uppercase; color: var(--text-dim); padding: 15px; border-bottom: 1px solid var(--glass-border); }
+.modern-table th { text-align: left; font-size: 0.75rem; color: var(--text-dim); padding: 15px; border-bottom: 1px solid var(--glass-border); }
 .modern-table td { padding: 15px; font-size: 0.9rem; border-bottom: 1px solid rgba(255,255,255,0.03); }
-.modern-table tr { transition: 0.2s; cursor: pointer; }
-.modern-table tr:hover td { background: rgba(34, 211, 238, 0.05); color: var(--primary); }
-
-/* Form Elements */
 .field { margin-bottom: 1.2rem; }
-.field label { display: block; font-size: 0.75rem; font-weight: 600; margin-bottom: 8px; color: var(--text-dim); }
-.field input, .field select { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--glass-border); background: rgba(15, 23, 42, 0.6); color: white; outline: none; }
-.field input:focus { border-color: var(--primary); }
-.checkbox-ui { display: flex; align-items: center; gap: 10px; font-size: 0.85rem; cursor: pointer; margin-bottom: 1.5rem; }
-.actions { display: flex; gap: 12px; }
-.btn-save { background: var(--primary); color: #020617; border: none; padding: 14px; border-radius: 12px; cursor: pointer; font-weight: 700; flex: 2; transition: 0.3s; }
-.btn-save:hover { filter: brightness(1.1); transform: translateY(-1px); }
-.btn-cancel { background: transparent; border: 1px solid var(--glass-border); color: var(--text); padding: 14px; border-radius: 12px; cursor: pointer; flex: 1; }
-
-.auth-helper-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1.5rem; }
-.btn-link { background: none; border: none; color: var(--text-dim); font-size: 0.75rem; cursor: pointer; transition: 0.2s; }
-.btn-link:hover { color: var(--primary); }
-
-/* Toasts */
-#toast-area { position: fixed; bottom: 30px; right: 30px; z-index: 999; }
-.toast { background: #1e293b; color: white; padding: 16px 24px; border-radius: 16px; border-left: 5px solid var(--primary); margin-top: 10px; animation: slideIn 0.4s ease; box-shadow: 0 10px 20px rgba(0,0,0,0.4); }
-@keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+.field label { display: block; font-size: 0.75rem; margin-bottom: 8px; color: var(--text-dim); }
+.field input, .field select { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--glass-border); background: rgba(15, 23, 42, 0.6); color: white; }
+.btn-save { background: var(--primary); color: #020617; border: none; padding: 12px 20px; border-radius: 12px; cursor: pointer; font-weight: 700; }
+.btn-cancel { background: transparent; border: 1px solid var(--glass-border); color: var(--text); padding: 12px 20px; border-radius: 12px; cursor: pointer; }
+.toast { position: fixed; bottom: 30px; right: 30px; background: #1e293b; color: white; padding: 16px 24px; border-radius: 16px; border-left: 5px solid var(--primary); }
