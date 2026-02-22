@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DuoGestão - Login</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="login-container" class="central-flex">
+        <form id="login-form" class="card">
+            <h2>DuoGestão</h2>
+            <div class="input-group">
+                <label for="username">Usuário</label>
+                <input type="text" id="username" required>
+            </div>
+            <div class="input-group">
+                <label for="password">Senha</label>
+                <input type="password" id="password" required>
+            </div>
+            <div class="actions">
+                <button type="button" class="btn-cancel">Cancelar</button>
+                <button type="submit" class="btn-save">Salvar</button>
+            </div>
+        </form>
+    </div>
+
+    <div id="main-layout" class="hidden">
+        <aside class="sidebar">
+            <h1 class="logo">DuoGestão</h1>
+            <nav>
+                <ul>
+                    <li data-page="dashboard">Dashboard</li>
+                    <li data-page="movimentacoes">Movimentações</li>
+                    <li data-page="planejamentos">Planejamentos</li>
+                    <li data-page="investimentos">Investimentos</li>
+                    <li data-page="configuracoes">Configurações</li>
+                </ul>
+            </nav>
+        </aside>
+        <main class="content">
+            <header id="content-header">
+                <h2 id="page-title">Dashboard</h2>
+            </header>
+            <section id="view-port">
+                </section>
+        </main>
+    </div>
+
+    <div id="toast-container"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
