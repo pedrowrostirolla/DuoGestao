@@ -1,30 +1,37 @@
+// --- DuoGestão Core Engine ---
 let db;
-let loggedUser = null;
+let sessionUser = null;
 
-// Inicialização do Banco de Dados
-const request = indexedDB.open("DuoGestaoDB", 3);
+const dbRequest = indexedDB.open("DuoGestaoDB", 4);
 
-request.onupgradeneeded = (e) => {
+dbRequest.onupgradeneeded = (e) => {
     db = e.target.result;
-    if (!db.objectStoreNames.contains("usuarios")) {
-        const store = db.createObjectStore("usuarios", { keyPath: "usuario" });
-        store.add({ usuario: "administrador", senha: "Vdabrasil@1234", nome: "Admin", tipo: "Administrador" });
-    }
-    if (!db.objectStoreNames.contains("centroCustos")) db.createObjectStore("centroCustos", { keyPath: "sigla" });
-    if (!db.objectStoreNames.contains("planoContas")) db.createObjectStore("planoContas", { keyPath: "descricao" });
+    const stores = ["usuarios", "centroCustos", "planoContas"];
+    stores.forEach(s => {
+        if (!db.objectStoreNames.contains(s)) {
+            const key = s === "usuarios" ? "usuario" : (s === "centroCustos" ? "sigla" : "descricao");
+            db.createObjectStore(s, { keyPath: key });
+        }
+    });
+
+    // Seed User Admin
+    const tx = e.target.transaction.objectStore("usuarios");
+    tx.put({ usuario: "administrador", senha: "Vdabrasil@1234", nome: "Administrador", tipo: "Administrador" });
 };
 
-request.onsuccess = (e) => db = e.target.result;
+dbRequest.onsuccess = (e) => db = e.target.result;
 
-// Navegação
+// --- Navegação ---
 function navegarAuth(id) {
-    document.querySelectorAll('.auth-card').forEach(c => c.classList.add('hidden'));
+    document.querySelectorAll('.glass-card').forEach(c => c.classList.add('hidden'));
     document.getElementById(id).classList.remove('hidden');
 }
 
 function abrirModulo(id) {
     document.querySelectorAll('.modulo').forEach(m => m.classList.add('hidden'));
     document.getElementById(id).classList.remove('hidden');
+    // Efeito visual de ativo
+    document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
 }
 
 function abrirConfig(id) {
@@ -37,10 +44,10 @@ function showToast(msg) {
     const t = document.createElement('div');
     t.className = 'toast'; t.innerText = msg;
     area.appendChild(t);
-    setTimeout(() => t.remove(), 3000);
+    setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 500); }, 3000);
 }
 
-// Lógica de Login
+// --- Autenticação ---
 document.getElementById('formLogin').onsubmit = (e) => {
     e.preventDefault();
     const u = document.getElementById('login-user').value;
@@ -50,44 +57,41 @@ document.getElementById('formLogin').onsubmit = (e) => {
     tx.onsuccess = () => {
         const user = tx.result;
         if (user && user.senha === p) {
-            loggedUser = user;
-            document.getElementById('user-logged-info').innerText = `${user.nome} (${user.tipo})`;
+            sessionUser = user;
+            document.getElementById('user-logged-info').innerText = user.nome;
             document.getElementById('auth-wrapper').classList.add('hidden');
             document.getElementById('tlApp').classList.remove('hidden');
             abrirModulo('tlDashboard');
-            showToast("Login bem-sucedido!");
+            showToast("Bem-vindo ao DuoGestão");
         } else {
-            showToast("Usuário ou senha inválidos.");
+            showToast("Credenciais incorretas.");
         }
     };
 };
 
-// Cadastro de Usuários (Config)
+// --- Gestão de Configurações ---
 document.getElementById('formUsr').onsubmit = (e) => {
     e.preventDefault();
     const tipo = document.getElementById('u-tipo').value;
-    
-    if (tipo === "Administrador" && loggedUser.tipo !== "Administrador") {
-        return showToast("Apenas administradores criam novos admins.");
+    if (tipo === "Administrador" && sessionUser.tipo !== "Administrador") {
+        return showToast("Apenas admins podem criar novos admins.");
     }
-
     const p = document.getElementById('u-pass').value;
     const c = document.getElementById('u-pass-conf').value;
     if (p !== c) return showToast("Senhas não coincidem.");
 
-    const novo = {
+    const payload = {
         nome: document.getElementById('u-nome').value,
         usuario: document.getElementById('u-user').value,
         senha: p,
         tipo: tipo
     };
 
-    const tx = db.transaction("usuarios", "readwrite").objectStore("usuarios").add(novo);
-    tx.onsuccess = () => { showToast("Usuário salvo!"); e.target.reset(); };
-    tx.onerror = () => showToast("Erro: Username já existe.");
+    db.transaction("usuarios", "readwrite").objectStore("usuarios").add(payload).onsuccess = () => {
+        showToast("Usuário cadastrado!"); e.target.reset();
+    };
 };
 
-// Cadastro Centro de Custo
 document.getElementById('formCC').onsubmit = (e) => {
     e.preventDefault();
     const data = {
@@ -100,7 +104,6 @@ document.getElementById('formCC').onsubmit = (e) => {
     };
 };
 
-// Cadastro Plano de Contas
 document.getElementById('formPC').onsubmit = (e) => {
     e.preventDefault();
     const data = {
@@ -112,6 +115,4 @@ document.getElementById('formPC').onsubmit = (e) => {
     };
 };
 
-function logout() {
-    location.reload();
-}
+function logout() { location.reload(); }

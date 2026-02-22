@@ -3,31 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DuoGestão - Sistema Financeiro</title>
+    <title>DuoGestão | Inteligência Financeira</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <section id="auth-wrapper">
-        <div id="tlLogin" class="auth-card">
+        <div id="tlLogin" class="glass-card">
             <form id="formLogin">
-                <h1 class="brand">DuoGestão</h1>
-                <div class="field"><label>Usuário</label><input type="text" id="login-user" required></div>
-                <div class="field"><label>Senha</label><input type="password" id="login-pass" required></div>
-                <div class="helper-links">
-                    <a href="javascript:void(0)" onclick="navegarAuth('tlEsqueciMinhaSenha')">Esqueci minha senha</a>
-                    <a href="javascript:void(0)" onclick="navegarAuth('tlPrimeiroAcesso')">Primeiro acesso</a>
+                <div class="brand-header">
+                    <h1 class="brand">Duo<span>Gestão</span></h1>
+                    <p>Bem-vindo de volta</p>
+                </div>
+                <div class="field">
+                    <label>Usuário</label>
+                    <input type="text" id="login-user" placeholder="Seu username" required>
+                </div>
+                <div class="field">
+                    <label>Senha</label>
+                    <input type="password" id="login-pass" placeholder="••••••••" required>
+                </div>
+                <div class="auth-helper-grid">
+                    <button type="button" class="btn-link" onclick="navegarAuth('tlEsqueciMinhaSenha')">Esqueci minha senha</button>
+                    <button type="button" class="btn-link" onclick="navegarAuth('tlPrimeiroAcesso')">Primeiro acesso</button>
                 </div>
                 <div class="actions">
-                    <button type="button" class="btn-cancel" onclick="document.getElementById('formLogin').reset()">Cancelar</button>
-                    <button type="submit" class="btn-save">Salvar</button>
+                    <button type="button" class="btn-cancel" onclick="this.form.reset()">Cancelar</button>
+                    <button type="submit" class="btn-save">Entrar</button>
                 </div>
             </form>
         </div>
 
-        <div id="tlPrimeiroAcesso" class="auth-card hidden">
+        <div id="tlPrimeiroAcesso" class="glass-card hidden">
             <form id="formPrimeiroAcesso">
-                <h2>Primeiro Acesso</h2>
+                <h2>Crie sua conta</h2>
                 <div class="field"><label>Nome completo</label><input type="text" id="reg-nome" required></div>
                 <div class="field"><label>Usuário (username)</label><input type="text" id="reg-user" required></div>
                 <div class="field"><label>Senha</label><input type="password" id="reg-pass" required></div>
@@ -39,9 +49,9 @@
             </form>
         </div>
 
-        <div id="tlEsqueciMinhaSenha" class="auth-card hidden">
+        <div id="tlEsqueciMinhaSenha" class="glass-card hidden">
             <form id="formEsqueciSenha">
-                <h2>Alterar Senha</h2>
+                <h2>Recuperar Acesso</h2>
                 <div class="field"><label>Usuário (username)</label><input type="text" id="reset-user" required></div>
                 <div class="field"><label>Nova Senha</label><input type="password" id="reset-pass" required></div>
                 <div class="field"><label>Confirmar senha</label><input type="password" id="reset-pass-conf" required></div>
@@ -54,40 +64,48 @@
     </section>
 
     <section id="tlApp" class="hidden">
-        <header class="navbar">
-            <div class="nav-left"><span class="brand">DuoGestão</span></div>
-            <nav class="nav-center">
-                <button class="menu-btn" onclick="abrirModulo('tlDashboard')">Dashboard</button>
-                <button class="menu-btn">Movimentações</button>
-                <button class="menu-btn">Planejamentos</button>
-                <button class="menu-btn">Investimentos</button>
-                <button class="menu-btn" onclick="abrirModulo('tlConfiguracoes')">Configurações</button>
-            </nav>
-            <div class="nav-right">
-                <span id="user-logged-info">---</span>
-                <button class="btn-exit" onclick="logout()">Sair</button>
+        <header class="navbar-modern">
+            <div class="nav-content">
+                <div class="nav-left"><span class="brand">Duo<span>Gestão</span></span></div>
+                <nav class="nav-center">
+                    <button class="nav-item" onclick="abrirModulo('tlDashboard')">Dashboard</button>
+                    <button class="nav-item">Movimentações</button>
+                    <button class="nav-item">Planejamentos</button>
+                    <button class="nav-item">Investimentos</button>
+                    <button class="nav-item" onclick="abrirModulo('tlConfiguracoes')">Configurações</button>
+                </nav>
+                <div class="nav-right">
+                    <div class="user-badge">
+                        <span id="user-logged-info">---</span>
+                    </div>
+                    <button class="btn-logout" onclick="logout()">Sair</button>
+                </div>
             </div>
         </header>
         
-        <main class="content-area">
+        <main class="main-container">
             <div id="tlDashboard" class="modulo hidden">
-                <h2>Dashboard</h2>
-                <div class="filter-bar card">
+                <div class="section-header">
+                    <h2>Visão Geral</h2>
+                </div>
+                
+                <div class="filter-panel card-ui">
                     <div class="field"><label>Data</label><input type="date"></div>
-                    <div class="field"><label>Descrição</label><input type="text" placeholder="Buscar..."></div>
+                    <div class="field"><label>Descrição</label><input type="text" placeholder="Ex: Aluguel"></div>
                     <div class="field"><label>Tipo</label><select><option>Todos</option><option>Receita</option><option>Despesa</option></select></div>
                     <div class="field"><label>Operação</label><select><option>Todas</option></select></div>
                     <div class="field"><label>Plano de Contas</label><select id="filtro-pc"><option>Todos</option></select></div>
                     <div class="field"><label>Centro de Custo</label><select id="filtro-cc"><option>Todos</option></select></div>
                 </div>
-                <div class="dashboard-grid">
-                    <div class="card chart-box">
-                        <h3>Resultados (Resumo)</h3>
-                        <div class="pizza-placeholder">Gráfico Pizza</div>
+
+                <div class="dashboard-layout">
+                    <div class="card-ui chart-wrapper">
+                        <h3>Distribuição de Gastos</h3>
+                        <div class="chart-area-placeholder">Gráfico de Pizza</div>
                     </div>
-                    <div class="card table-box">
-                        <h3>Movimentações</h3>
-                        <table class="data-table">
+                    <div class="card-ui table-wrapper">
+                        <h3>Extrato de Lançamentos</h3>
+                        <table class="modern-table">
                             <thead><tr><th>Data</th><th>Descrição</th><th>Valor</th><th>Plano</th></tr></thead>
                             <tbody></tbody>
                         </table>
@@ -96,43 +114,45 @@
             </div>
 
             <div id="tlConfiguracoes" class="modulo hidden">
-                <h2>Configurações</h2>
-                <div class="sub-nav">
+                <div class="section-header">
+                    <h2>Configurações</h2>
+                </div>
+                <div class="tabs-modern">
                     <button onclick="abrirConfig('tlCentroCustos')">Centro de Custos</button>
                     <button onclick="abrirConfig('tlPlanoContas')">Plano de Contas</button>
                     <button onclick="abrirConfig('tlUsuarios')">Usuários</button>
                 </div>
 
                 <div id="tlCentroCustos" class="sub-modulo hidden">
-                    <form id="formCC" class="card">
-                        <h3>Cadastro: Centro de Custo</h3>
+                    <form id="formCC" class="card-ui form-compact">
+                        <h3>Novo Centro de Custo</h3>
                         <div class="field"><label>Descrição</label><input type="text" id="cc-desc" required></div>
                         <div class="field"><label>Sigla</label><input type="text" id="cc-sigla" required></div>
-                        <div class="field-check"><input type="checkbox" id="cc-ativo" checked> <label>Ativo</label></div>
+                        <label class="checkbox-ui"><input type="checkbox" id="cc-ativo" checked> <span>Ativo</span></label>
                         <div class="actions">
-                            <button type="button" class="btn-cancel" onclick="this.form.reset()">Cancelar</button>
+                            <button type="button" class="btn-cancel">Cancelar</button>
                             <button type="submit" class="btn-save">Salvar</button>
                         </div>
                     </form>
                 </div>
 
                 <div id="tlPlanoContas" class="sub-modulo hidden">
-                    <form id="formPC" class="card">
-                        <h3>Cadastro: Plano de Contas</h3>
+                    <form id="formPC" class="card-ui form-compact">
+                        <h3>Novo Plano de Contas</h3>
                         <div class="field"><label>Descrição</label><input type="text" id="pc-desc" required></div>
-                        <div class="field-check"><input type="checkbox" id="pc-ativo" checked> <label>Ativo</label></div>
+                        <label class="checkbox-ui"><input type="checkbox" id="pc-ativo" checked> <span>Ativo</span></label>
                         <div class="actions">
-                            <button type="button" class="btn-cancel" onclick="this.form.reset()">Cancelar</button>
+                            <button type="button" class="btn-cancel">Cancelar</button>
                             <button type="submit" class="btn-save">Salvar</button>
                         </div>
                     </form>
                 </div>
 
                 <div id="tlUsuarios" class="sub-modulo hidden">
-                    <form id="formUsr" class="card">
-                        <h3>Gestão de Usuários</h3>
+                    <form id="formUsr" class="card-ui form-compact">
+                        <h3>Gestão de Acesso</h3>
                         <div class="field"><label>Nome Completo</label><input type="text" id="u-nome" required></div>
-                        <div class="field"><label>Usuário (username)</label><input type="text" id="u-user" required></div>
+                        <div class="field"><label>Usuário</label><input type="text" id="u-user" required></div>
                         <div class="field"><label>Senha</label><input type="password" id="u-pass" required></div>
                         <div class="field"><label>Confirmar Senha</label><input type="password" id="u-pass-conf" required></div>
                         <div class="field">
@@ -143,7 +163,7 @@
                             </select>
                         </div>
                         <div class="actions">
-                            <button type="button" class="btn-cancel" onclick="this.form.reset()">Cancelar</button>
+                            <button type="button" class="btn-cancel">Cancelar</button>
                             <button type="submit" class="btn-save">Salvar</button>
                         </div>
                     </form>
