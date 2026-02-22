@@ -14,23 +14,23 @@
 body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
 .hidden { display: none !important; }
 
-/* Grid de Meses */
-.month-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 12px; }
-.month-item { font-size: 0.7rem; display: flex; align-items: center; gap: 5px; color: var(--text-dim); }
+/* Cores das Movimentações - Escrita */
+.color-Entrada td:nth-child(n+2) { color: var(--success) !important; font-weight: 600; }
+.color-Saída td:nth-child(n+2) { color: var(--danger) !important; font-weight: 600; }
+.color-Investimento td:nth-child(n+2) { color: var(--investment) !important; font-weight: 600; }
 
-/* Cores das Operações */
-.color-Entrada { color: var(--success) !important; font-weight: 600; }
-.color-Saída { color: var(--danger) !important; font-weight: 600; }
-.color-Investimento { color: var(--investment) !important; font-weight: 600; }
+/* Month Grid Checkboxes */
+.month-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 12px; }
+.month-item { font-size: 0.75rem; display: flex; align-items: center; gap: 6px; cursor: pointer; color: var(--text-dim); }
 
-/* Acordeão Planejamento */
-.plan-month { background: var(--glass); border: 1px solid var(--glass-border); border-radius: 12px; margin-bottom: 10px; overflow: hidden; }
-.plan-header { padding: 15px 20px; cursor: pointer; display: flex; justify-content: space-between; font-weight: 600; }
-.plan-content { padding: 0 20px 15px 20px; border-top: 1px solid var(--glass-border); background: rgba(0,0,0,0.1); }
+/* Planejamento Accordion */
+.plan-month { background: var(--glass); border: 1px solid var(--glass-border); border-radius: 12px; margin-bottom: 10px; }
+.plan-header { padding: 15px 20px; cursor: pointer; display: flex; justify-content: space-between; font-weight: 800; color: var(--primary); }
+.plan-content { padding: 0 20px 15px 20px; border-top: 1px solid var(--glass-border); }
 
-/* Resto do CSS conforme v1.4.0 (Mantido rigorosamente) */
-#auth-wrapper { display: flex; justify-content: center; align-items: center; height: 100vh; }
+/* Layout Geral */
 .glass-card { background: var(--glass); backdrop-filter: blur(12px); border: 1px solid var(--glass-border); border-radius: 24px; padding: 2.5rem; width: 420px; }
+#auth-wrapper { display: flex; justify-content: center; align-items: center; height: 100vh; }
 .navbar-modern { position: sticky; top: 0; z-index: 100; background: rgba(2, 6, 23, 0.9); backdrop-filter: blur(10px); border-bottom: 1px solid var(--glass-border); }
 .nav-content { max-width: 1300px; margin: auto; height: 80px; display: flex; justify-content: space-between; align-items: center; padding: 0 2rem; }
 .brand { font-size: 1.8rem; font-weight: 800; }
@@ -38,13 +38,24 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); colo
 .nav-item { background: none; border: none; color: var(--text-dim); font-weight: 600; padding: 10px 15px; cursor: pointer; border-radius: 10px; transition: 0.3s; }
 .nav-item:hover { color: var(--primary); background: rgba(255,255,255,0.05); }
 .main-container { max-width: 1300px; margin: auto; padding: 2rem; }
-.card-ui { background: var(--glass); border: 1px solid var(--glass-border); border-radius: 20px; padding: 1.5rem; }
+.card-ui { background: var(--glass); border: 1px solid var(--glass-border); border-radius: 20px; padding: 1.5rem; margin-bottom: 20px; }
 .modern-table { width: 100%; border-collapse: collapse; }
 .modern-table th { text-align: left; font-size: 0.75rem; color: var(--text-dim); padding: 15px; border-bottom: 1px solid var(--glass-border); }
 .modern-table td { padding: 15px; font-size: 0.9rem; border-bottom: 1px solid rgba(255,255,255,0.03); }
+.modern-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+/* Forms */
 .field { margin-bottom: 1.2rem; }
 .field label { display: block; font-size: 0.75rem; margin-bottom: 8px; color: var(--text-dim); }
-.field input, .field select { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--glass-border); background: rgba(15, 23, 42, 0.6); color: white; }
-.btn-save { background: var(--primary); color: #020617; border: none; padding: 12px 20px; border-radius: 12px; cursor: pointer; font-weight: 700; }
-.btn-cancel { background: transparent; border: 1px solid var(--glass-border); color: var(--text); padding: 12px 20px; border-radius: 12px; cursor: pointer; }
-.toast { position: fixed; bottom: 30px; right: 30px; background: #1e293b; color: white; padding: 16px 24px; border-radius: 16px; border-left: 5px solid var(--primary); }
+.field input, .field select { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--glass-border); background: rgba(15, 23, 42, 0.6); color: white; outline: none; }
+.actions { display: flex; gap: 10px; }
+.btn-save { background: var(--primary); color: #020617; border: none; padding: 12px 20px; border-radius: 12px; cursor: pointer; font-weight: 700; flex: 2; }
+.btn-cancel { background: transparent; border: 1px solid var(--glass-border); color: var(--text); padding: 12px 20px; border-radius: 12px; cursor: pointer; flex: 1; }
+.auth-helper-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+.btn-link { background: none; border: none; color: var(--text-dim); font-size: 0.75rem; cursor: pointer; }
+
+/* Grid Config */
+.config-split { display: grid; grid-template-columns: 380px 1fr; gap: 20px; }
+
+/* Toast */
+.toast { position: fixed; bottom: 30px; right: 30px; background: #1e293b; color: white; padding: 16px 24px; border-radius: 16px; border-left: 5px solid var(--primary); z-index: 1000; }

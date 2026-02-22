@@ -1,7 +1,8 @@
 let db;
 let sessionUser = null;
-const mesesNome = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+const MESES = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
 
+// IndexedDB v7
 const dbRequest = indexedDB.open("DuoGestaoDB", 7);
 
 dbRequest.onupgradeneeded = (e) => {
@@ -17,16 +18,22 @@ dbRequest.onupgradeneeded = (e) => {
 
 dbRequest.onsuccess = (e) => {
     db = e.target.result;
-    initMonthGrids();
+    initGrids();
 };
 
-// --- NAVEGAÇÃO E UI ---
+// --- NAVEGAÇÃO ---
+function navegarAuth(id) {
+    document.querySelectorAll('.glass-card').forEach(c => c.classList.add('hidden'));
+    document.getElementById(id).classList.remove('hidden');
+}
+
 function abrirModulo(id) {
     document.querySelectorAll('.modulo').forEach(m => m.classList.add('hidden'));
     document.getElementById(id).classList.remove('hidden');
     if(id === 'tlMovimentacoes') renderMovimentacoes();
     if(id === 'tlInvestimentos') renderInvestimentos();
     if(id === 'tlPlanejamentos') renderPlanejamento();
+    if(id === 'tlConfiguracoes') renderConfiguracoes();
     if(id.includes('Nova') || id.includes('Novo')) popularSelects();
 }
 
@@ -35,32 +42,28 @@ function abrirConfig(id) {
     document.getElementById(id).classList.remove('hidden');
 }
 
+// --- INTERFACE ---
+function initGrids() {
+    const ids = ['m-mes-inicio', 'm-mes-fim', 'i-duracao'];
+    ids.forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.innerHTML = MESES.map(m => `<label class="month-item"><input type="checkbox" value="${m}"> ${m}</label>`).join('');
+    });
+}
+
+function toggleFixaFields(val) {
+    document.getElementById('campos-fixa').classList.toggle('hidden', val !== 'Fixa');
+}
+
 function showToast(msg) {
     const area = document.getElementById('toast-area');
     const t = document.createElement('div'); t.className = 'toast'; t.innerText = msg;
     area.appendChild(t); setTimeout(() => t.remove(), 3000);
 }
 
-// --- LOGICA DE MESES ---
-function initMonthGrids() {
-    const grids = ['m-mes-inicio', 'm-mes-fim', 'i-duracao'];
-    grids.forEach(id => {
-        const el = document.getElementById(id);
-        if(!el) return;
-        el.innerHTML = mesesNome.map((m, i) => `
-            <label class="month-item"><input type="checkbox" value="${m}"> ${m}</label>
-        `).join('');
-    });
-}
-
-function toggleFixaFields(val) {
-    document.getElementById('campos-fixa').className = (val === 'Fixa') ? '' : 'hidden';
-}
-
 // --- MOVIMENTAÇÕES ---
 document.getElementById('formNovaMov').onsubmit = (e) => {
     e.preventDefault();
-    const fixa = document.getElementById('m-tipo').value === 'Fixa';
     const mov = {
         data: document.getElementById('m-data').value,
         descricao: document.getElementById('m-desc').value,
@@ -69,53 +72,43 @@ document.getElementById('formNovaMov').onsubmit = (e) => {
         operacao: document.getElementById('m-operacao').value,
         pc: document.getElementById('m-pc').value,
         cc: document.getElementById('m-cc').value,
-        mesesInicio: fixa ? getCheckedMonths('m-mes-inicio') : [],
-        mesesFim: fixa ? getCheckedMonths('m-mes-fim') : []
+        mesesInicio: getChecked('m-mes-inicio'),
+        mesesFim: getChecked('m-mes-fim')
     };
-    const tx = db.transaction("movimentacoes", "readwrite").objectStore("movimentacoes").add(mov);
-    tx.onsuccess = () => { showToast("Movimentação salva!"); abrirModulo('tlMovimentacoes'); };
+    db.transaction("movimentacoes", "readwrite").objectStore("movimentacoes").add(mov).onsuccess = () => {
+        showToast("Lançamento concluído."); abrirModulo('tlMovimentacoes');
+    };
 };
 
 function renderMovimentacoes() {
-    const tbody = document.querySelector("#tableMov tbody");
-    tbody.innerHTML = "";
+    const tbody = document.querySelector("#tableMov tbody"); tbody.innerHTML = "";
     db.transaction("movimentacoes").objectStore("movimentacoes").openCursor().onsuccess = (e) => {
         const cursor = e.target.result;
         if(cursor) {
             const tr = document.createElement('tr');
             tr.className = `color-${cursor.value.operacao}`;
-            tr.innerHTML = `
-                <td><input type="checkbox" value="${cursor.value.id}"></td>
-                <td>${cursor.value.data}</td>
-                <td>${cursor.value.descricao}</td>
-                <td>R$ ${cursor.value.valor.toFixed(2)}</td>
-                <td>${cursor.value.operacao}</td>
-            `;
-            tr.onclick = (ev) => { if(ev.target.type !== 'checkbox') console.log("Editar ID:", cursor.value.id); };
-            tbody.appendChild(tr);
-            cursor.continue();
+            tr.innerHTML = `<td><input type="checkbox" value="${cursor.value.id}"></td>
+                            <td>${cursor.value.data}</td><td>${cursor.value.descricao}</td>
+                            <td>R$ ${cursor.value.valor.toFixed(2)}</td><td>${cursor.value.operacao}</td>`;
+            tr.onclick = (ev) => { if(ev.target.type !== 'checkbox') console.log("Edição ID:", cursor.value.id); };
+            tbody.appendChild(tr); cursor.continue();
         }
     };
 }
 
-// --- PLANEJAMENTO ---
+// --- PLANEJAMENTO (VISUALIZAÇÃO APENAS) ---
 function renderPlanejamento() {
-    const container = document.getElementById('lista-planejamento');
-    container.innerHTML = "";
-    const ano = 2026;
-
-    mesesNome.forEach(mes => {
-        const div = document.createElement('div');
-        div.className = 'plan-month';
+    const container = document.getElementById('lista-planejamento'); container.innerHTML = "";
+    MESES.forEach(mes => {
+        const div = document.createElement('div'); div.className = 'plan-month';
         div.innerHTML = `<div class="plan-header" onclick="this.nextElementSibling.classList.toggle('hidden')">
-            <span>${mes}/${ano}</span> <span>+</span>
-        </div><div class="plan-content hidden" id="plan-${mes}">Carregando...</div>`;
+                            <span>${mes}/2026</span><span>+</span></div>
+                         <div class="plan-content hidden">Aguarde...</div>`;
         container.appendChild(div);
-
         const content = div.querySelector('.plan-content');
         db.transaction("movimentacoes").objectStore("movimentacoes").getAll().onsuccess = (e) => {
             const fixas = e.target.result.filter(m => m.tipo === 'Fixa' && m.mesesInicio.includes(mes));
-            content.innerHTML = fixas.length ? fixas.map(f => `<div>${f.descricao} - R$ ${f.valor.toFixed(2)}</div>`).join('') : "Nenhuma fixa para este mês.";
+            content.innerHTML = fixas.length ? fixas.map(f => `<div>${f.descricao} - R$ ${f.valor.toFixed(2)}</div>`).join('') : "Sem fixas planejadas.";
         };
     });
 }
@@ -126,90 +119,105 @@ document.getElementById('formNovoInv').onsubmit = (e) => {
     const inv = {
         descricao: document.getElementById('i-desc').value,
         valor: parseFloat(document.getElementById('i-valor').value),
-        duracao: getCheckedMonths('i-duracao'),
+        duracao: getChecked('i-duracao'),
         pc: document.getElementById('i-pc').value,
         cc: document.getElementById('i-cc').value
     };
     db.transaction("investimentos", "readwrite").objectStore("investimentos").add(inv).onsuccess = () => {
-        showToast("Investimento salvo!"); abrirModulo('tlInvestimentos');
+        showToast("Investimento salvo."); abrirModulo('tlInvestimentos');
     };
 };
 
 function renderInvestimentos() {
-    const tbody = document.querySelector("#tableInv tbody");
-    tbody.innerHTML = "";
+    const tbody = document.querySelector("#tableInv tbody"); tbody.innerHTML = "";
     db.transaction("investimentos").objectStore("investimentos").openCursor().onsuccess = (e) => {
         const cursor = e.target.result;
         if(cursor) {
-            tbody.innerHTML += `<tr>
-                <td><input type="checkbox" value="${cursor.value.id}"></td>
-                <td>${cursor.value.descricao}</td>
-                <td>R$ ${cursor.value.valor.toFixed(2)}</td>
-            </tr>`;
+            tbody.innerHTML += `<tr><td><input type="checkbox" value="${cursor.value.id}"></td>
+                                <td>${cursor.value.descricao}</td><td>R$ ${cursor.value.valor.toFixed(2)}</td></tr>`;
             cursor.continue();
         }
     };
 }
 
-// --- BACKUP ---
+// --- CONFIGURAÇÕES E BACKUP ---
+function renderConfiguracoes() {
+    renderTableConfig("centroCustos", "tableCC", ["sigla", "descricao", "ativo"]);
+    renderTableConfig("planoContas", "tablePC", ["descricao", "ativo"]);
+    renderTableConfig("usuarios", "tableUsr", ["nome", "usuario", "tipo"]);
+}
+
+function renderTableConfig(store, tableId, fields) {
+    const tbody = document.querySelector(`#${tableId} tbody`); tbody.innerHTML = "";
+    db.transaction(store).objectStore(store).openCursor().onsuccess = (e) => {
+        const cursor = e.target.result;
+        if(cursor) {
+            const tr = document.createElement('tr');
+            tr.innerHTML = fields.map(f => `<td>${f==='ativo'?(cursor.value[f]?'Ativo':'Inativo'):cursor.value[f]}</td>`).join('');
+            tbody.appendChild(tr); cursor.continue();
+        }
+    };
+}
+
 async function exportarBackup() {
-    const data = {};
+    const out = {};
     const stores = ["usuarios", "centroCustos", "planoContas", "movimentacoes", "investimentos"];
-    for (let s of stores) {
-        data[s] = await new Promise(res => {
-            db.transaction(s).objectStore(s).getAll().onsuccess = (e) => res(e.target.result);
-        });
-    }
-    const blob = new Blob([JSON.stringify(data)], {type: "application/json"});
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `DuoGestao_Backup_${new Date().toISOString().slice(0,10)}.json`;
-    a.click();
+    for(let s of stores) out[s] = await new Promise(r => db.transaction(s).objectStore(s).getAll().onsuccess = (e) => r(e.target.result));
+    const blob = new Blob([JSON.stringify(out)], {type: "application/json"});
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = "DuoGestao_Backup.json"; a.click();
 }
 
 function importarBackup(input) {
     const reader = new FileReader();
-    reader.onload = async (e) => {
+    reader.onload = (e) => {
         const data = JSON.parse(e.target.result);
         for(let s in data) {
             const tx = db.transaction(s, "readwrite").objectStore(s);
             data[s].forEach(item => tx.put(item));
         }
-        showToast("Backup importado!");
-        setTimeout(() => location.reload(), 1000);
+        showToast("Importação completa!"); setTimeout(() => location.reload(), 1000);
     };
     reader.readAsText(input.files[0]);
 }
 
-// --- AUXILIARES ---
-function getCheckedMonths(id) {
-    return Array.from(document.querySelectorAll(`#${id} input:checked`)).map(i => i.value);
-}
+// --- HELPERS ---
+function getChecked(id) { return Array.from(document.querySelectorAll(`#${id} input:checked`)).map(i => i.value); }
 
 function popularSelects() {
-    const pcSelects = ['m-pc', 'i-pc', 'dash-pc'];
-    const ccSelects = ['m-cc', 'i-cc', 'dash-cc'];
-    
     db.transaction("planoContas").objectStore("planoContas").getAll().onsuccess = (e) => {
-        const options = e.target.result.map(i => `<option value="${i.descricao}">${i.descricao}</option>`).join('');
-        pcSelects.forEach(s => { const el = document.getElementById(s); if(el) el.innerHTML = options; });
+        const h = e.target.result.map(i => `<option value="${i.descricao}">${i.descricao}</option>`).join('');
+        ['m-pc', 'i-pc'].forEach(id => document.getElementById(id).innerHTML = h);
     };
     db.transaction("centroCustos").objectStore("centroCustos").getAll().onsuccess = (e) => {
-        const options = e.target.result.map(i => `<option value="${i.sigla}">${i.descricao}</option>`).join('');
-        ccSelects.forEach(s => { const el = document.getElementById(s); if(el) el.innerHTML = options; });
+        const h = e.target.result.map(i => `<option value="${i.sigla}">${i.descricao}</option>`).join('');
+        ['m-cc', 'i-cc'].forEach(id => document.getElementById(id).innerHTML = h);
     };
 }
 
-function toggleSelectAll(source, tableId) {
-    document.querySelectorAll(`#${tableId} tbody input[type="checkbox"]`).forEach(c => c.checked = source.checked);
+function toggleSelectAll(src, tid) { document.querySelectorAll(`#${tid} tbody input`).forEach(c => c.checked = src.checked); }
+
+function excluirSelecionados(store) {
+    const ids = Array.from(document.querySelectorAll('.modulo:not(.hidden) tbody input:checked')).map(i => parseInt(i.value));
+    const tx = db.transaction(store, "readwrite");
+    ids.forEach(id => tx.objectStore(store).delete(id));
+    tx.oncomplete = () => { showToast("Itens excluídos."); abrirModulo('tl'+store.charAt(0).toUpperCase() + store.slice(1)); };
 }
 
-function excluirSelecionados(storeName) {
-    const ids = Array.from(document.querySelectorAll('.modulo:not(.hidden) table tbody input:checked')).map(i => parseInt(i.value));
-    if(!ids.length) return showToast("Selecione itens para excluir.");
-    const tx = db.transaction(storeName, "readwrite");
-    ids.forEach(id => tx.objectStore(storeName).delete(id));
-    tx.oncomplete = () => { showToast("Excluído!"); abrirModulo('tl'+storeName.charAt(0).toUpperCase() + storeName.slice(1)); };
-}
+// --- LOGIN ---
+document.getElementById('formLogin').onsubmit = (e) => {
+    e.preventDefault();
+    const u = document.getElementById('login-user').value;
+    const p = document.getElementById('login-pass').value;
+    db.transaction("usuarios").objectStore("usuarios").get(u).onsuccess = (ev) => {
+        const user = ev.target.result;
+        if((u==='administrador' && p==='Vdabrasil@1234') || (user && user.senha === p)) {
+            sessionUser = user || {nome: "Mestre", tipo: "Administrador"};
+            document.getElementById('user-logged-info').innerText = sessionUser.nome;
+            document.getElementById('auth-wrapper').classList.add('hidden');
+            document.getElementById('tlApp').classList.remove('hidden');
+            abrirModulo('tlDashboard');
+        } else showToast("Erro de login.");
+    };
+};
 
 function logout() { location.reload(); }
