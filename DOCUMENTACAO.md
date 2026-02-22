@@ -3,15 +3,17 @@
 ## v1.0.0 (22/02/2026) - Estrutura Inicial
 - Objetivo: Gestão financeira para casais.
 - Tecnologias: HTML5, CSS3, JavaScript (Vanilla), IndexedDB.
-- Usuário Padrão: administrador / Vdabrasil@1234 (Permanente).
+- Usuário Padrão (Permanente): administrador / Vdabrasil@1234.
 
-## v1.1.0 (22/02/2026) - Sistema de Autenticação e Layout
-- **Novas Telas de Fluxo:** - `tlLogin`: Tela inicial obrigatória com campos de username e senha.
-    - `tlPrimeiroAcesso`: Cadastro de novos usuários (Nome, Usuário, Senha, Confirmar Senha).
-    - `tlEsqueciMinhaSenha`: Redefinição de senha com validação de existência do usuário.
-- **Layout tlDashboard:**
-    - Cabeçalho (Header) fixo com Logomarca à esquerda.
-    - Menu central com botões: Dashboard, Movimentações, Planejamentos, Investimentos, Configurações.
-    - Lado direito: Identificação do usuário logado e botão "Sair".
-- **Padronização:** Botões "Salvar" e "Cancelar" presentes em todos os formulários; Alertas tratados no canto inferior direito.
-- **Regras de Negócio:** Bloqueio de alteração de senha caso o usuário não exista; Persistência via IndexedDB.
+## v1.1.0 (22/02/2026) - Autenticação
+- Fluxos: `tlLogin`, `tlPrimeiroAcesso`, `tlEsqueciMinhaSenha`.
+- Navegação: Header fixo com menu central e logoff.
+
+## v1.2.0 (22/02/2026) - Módulos e Configurações (Controle de Versão)
+- **tlDashboard:** Área de filtros (Data, Descrição, Tipo, Operação, Plano de Contas, Centro de Custo). Exibição de Gráfico de Pizza (Resumo) e tabela de movimentações. Somente leitura.
+- **tlConfiguracoes:** Estrutura de sub-abas:
+    - `tlCentroCustos`: Cadastro com Descrição, Sigla e Ativo (checkbox).
+    - `tlPlanoContas`: Cadastro com Descrição e Ativo (checkbox).
+    - `tlUsuarios`: Gestão de usuários (Nome, Usuário, Senha, Confirmação e Tipo de Acesso).
+- **Regra de Segurança:** Apenas usuários do tipo "Administrador" podem criar outros usuários "Administrador".
+- **Banco de Dados (IndexedDB):** Adicionadas stores `centroCustos` e `planoContas`. Atualizada store `usuarios` para conter `tipoAcesso`.

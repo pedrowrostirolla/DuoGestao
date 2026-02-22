@@ -1,119 +1,117 @@
-// --- Inicialização do Banco de Dados ---
 let db;
-const request = indexedDB.open("DuoGestaoDB", 1);
+let loggedUser = null;
+
+// Inicialização do Banco de Dados
+const request = indexedDB.open("DuoGestaoDB", 3);
 
 request.onupgradeneeded = (e) => {
     db = e.target.result;
     if (!db.objectStoreNames.contains("usuarios")) {
         const store = db.createObjectStore("usuarios", { keyPath: "usuario" });
-        // Inserção do usuário administrador obrigatório
-        store.add({ 
-            usuario: "administrador", 
-            senha: "Vdabrasil@1234", 
-            nome: "Administrador do Sistema" 
-        });
+        store.add({ usuario: "administrador", senha: "Vdabrasil@1234", nome: "Admin", tipo: "Administrador" });
     }
+    if (!db.objectStoreNames.contains("centroCustos")) db.createObjectStore("centroCustos", { keyPath: "sigla" });
+    if (!db.objectStoreNames.contains("planoContas")) db.createObjectStore("planoContas", { keyPath: "descricao" });
 };
 
-request.onsuccess = (e) => {
-    db = e.target.result;
-    console.log("Banco DuoGestão pronto.");
-};
+request.onsuccess = (e) => db = e.target.result;
 
-// --- Gerenciamento de Telas ---
-function navegarAuth(proximaTela) {
-    document.querySelectorAll('.auth-card').forEach(card => card.classList.add('hidden'));
-    document.getElementById(proximaTela).classList.remove('hidden');
+// Navegação
+function navegarAuth(id) {
+    document.querySelectorAll('.auth-card').forEach(c => c.classList.add('hidden'));
+    document.getElementById(id).classList.remove('hidden');
 }
 
-function showToast(mensagem) {
+function abrirModulo(id) {
+    document.querySelectorAll('.modulo').forEach(m => m.classList.add('hidden'));
+    document.getElementById(id).classList.remove('hidden');
+}
+
+function abrirConfig(id) {
+    document.querySelectorAll('.sub-modulo').forEach(s => s.classList.add('hidden'));
+    document.getElementById(id).classList.remove('hidden');
+}
+
+function showToast(msg) {
     const area = document.getElementById('toast-area');
-    const toast = document.createElement('div');
-    toast.className = 'toast';
-    toast.innerText = mensagem;
-    area.appendChild(toast);
-    setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 500); }, 3500);
+    const t = document.createElement('div');
+    t.className = 'toast'; t.innerText = msg;
+    area.appendChild(t);
+    setTimeout(() => t.remove(), 3000);
 }
 
-// --- Funções de Autenticação ---
-
-// Login
+// Lógica de Login
 document.getElementById('formLogin').onsubmit = (e) => {
     e.preventDefault();
-    const user = document.getElementById('login-user').value;
-    const pass = document.getElementById('login-pass').value;
+    const u = document.getElementById('login-user').value;
+    const p = document.getElementById('login-pass').value;
 
-    const transaction = db.transaction(["usuarios"], "readonly");
-    const store = transaction.objectStore("usuarios");
-    const getReq = store.get(user);
-
-    getReq.onsuccess = () => {
-        const usuario = getReq.result;
-        if (usuario && usuario.senha === pass) {
-            document.getElementById('user-logged-name').innerText = `Olá, ${usuario.nome}`;
+    const tx = db.transaction("usuarios", "readonly").objectStore("usuarios").get(u);
+    tx.onsuccess = () => {
+        const user = tx.result;
+        if (user && user.senha === p) {
+            loggedUser = user;
+            document.getElementById('user-logged-info').innerText = `${user.nome} (${user.tipo})`;
             document.getElementById('auth-wrapper').classList.add('hidden');
-            document.getElementById('tlDashboard').classList.remove('hidden');
-            showToast("Acesso autorizado!");
+            document.getElementById('tlApp').classList.remove('hidden');
+            abrirModulo('tlDashboard');
+            showToast("Login bem-sucedido!");
         } else {
             showToast("Usuário ou senha inválidos.");
         }
     };
 };
 
-// Primeiro Acesso
-document.getElementById('formPrimeiroAcesso').onsubmit = (e) => {
+// Cadastro de Usuários (Config)
+document.getElementById('formUsr').onsubmit = (e) => {
     e.preventDefault();
-    const nome = document.getElementById('reg-nome').value;
-    const user = document.getElementById('reg-user').value;
-    const pass = document.getElementById('reg-pass').value;
-    const conf = document.getElementById('reg-pass-conf').value;
-
-    if (pass !== conf) return showToast("As senhas não coincidem.");
-
-    const transaction = db.transaction(["usuarios"], "readwrite");
-    const store = transaction.objectStore("usuarios");
+    const tipo = document.getElementById('u-tipo').value;
     
-    const addReq = store.add({ usuario: user, senha: pass, nome: nome });
-    
-    addReq.onsuccess = () => {
-        showToast("Cadastro realizado! Faça login.");
-        navegarAuth('tlLogin');
+    if (tipo === "Administrador" && loggedUser.tipo !== "Administrador") {
+        return showToast("Apenas administradores criam novos admins.");
+    }
+
+    const p = document.getElementById('u-pass').value;
+    const c = document.getElementById('u-pass-conf').value;
+    if (p !== c) return showToast("Senhas não coincidem.");
+
+    const novo = {
+        nome: document.getElementById('u-nome').value,
+        usuario: document.getElementById('u-user').value,
+        senha: p,
+        tipo: tipo
     };
-    addReq.onerror = () => showToast("Erro: Username já existe.");
+
+    const tx = db.transaction("usuarios", "readwrite").objectStore("usuarios").add(novo);
+    tx.onsuccess = () => { showToast("Usuário salvo!"); e.target.reset(); };
+    tx.onerror = () => showToast("Erro: Username já existe.");
 };
 
-// Esqueci Minha Senha
-document.getElementById('formEsqueciSenha').onsubmit = (e) => {
+// Cadastro Centro de Custo
+document.getElementById('formCC').onsubmit = (e) => {
     e.preventDefault();
-    const user = document.getElementById('reset-user').value;
-    const pass = document.getElementById('reset-pass').value;
-    const conf = document.getElementById('reset-pass-conf').value;
+    const data = {
+        descricao: document.getElementById('cc-desc').value,
+        sigla: document.getElementById('cc-sigla').value,
+        ativo: document.getElementById('cc-ativo').checked
+    };
+    db.transaction("centroCustos", "readwrite").objectStore("centroCustos").add(data).onsuccess = () => {
+        showToast("Centro de Custo salvo!"); e.target.reset();
+    };
+};
 
-    if (pass !== conf) return showToast("As senhas não coincidem.");
-
-    const transaction = db.transaction(["usuarios"], "readwrite");
-    const store = transaction.objectStore("usuarios");
-    const getReq = store.get(user);
-
-    getReq.onsuccess = () => {
-        const usuario = getReq.result;
-        if (!usuario) return showToast("Usuário não encontrado.");
-        
-        usuario.senha = pass;
-        store.put(usuario);
-        showToast("Senha redefinida com sucesso!");
-        navegarAuth('tlLogin');
+// Cadastro Plano de Contas
+document.getElementById('formPC').onsubmit = (e) => {
+    e.preventDefault();
+    const data = {
+        descricao: document.getElementById('pc-desc').value,
+        ativo: document.getElementById('pc-ativo').checked
+    };
+    db.transaction("planoContas", "readwrite").objectStore("planoContas").add(data).onsuccess = () => {
+        showToast("Plano de Contas salvo!"); e.target.reset();
     };
 };
 
 function logout() {
-    document.getElementById('tlDashboard').classList.add('hidden');
-    document.getElementById('auth-wrapper').classList.remove('hidden');
-    navegarAuth('tlLogin');
-    showToast("Sessão encerrada.");
-}
-
-function limparLogin() {
-    document.getElementById('formLogin').reset();
-    showToast("Campos limpos.");
+    location.reload();
 }

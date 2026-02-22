@@ -1,70 +1,53 @@
 :root {
     --primary: #38bdf8;
-    --primary-hover: #0ea5e9;
     --bg: #0f172a;
     --card: #1e293b;
     --text: #f8fafc;
     --text-muted: #94a3b8;
-    --danger: #ef4444;
     --border: #334155;
+    --danger: #ef4444;
 }
 
 * { box-sizing: border-box; }
-body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); }
+body { margin: 0; font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); }
 .hidden { display: none !important; }
 
-/* Centralização Telas Login */
-#auth-wrapper {
-    display: flex; justify-content: center; align-items: center;
-    height: 100vh; background: radial-gradient(circle, #1e293b 0%, #0f172a 100%);
-}
+/* Auth */
+#auth-wrapper { display: flex; justify-content: center; align-items: center; height: 100vh; }
+.auth-card { background: var(--card); padding: 2.5rem; border-radius: 12px; width: 100%; max-width: 400px; }
+.brand { color: var(--primary); font-weight: 800; font-size: 1.5rem; }
 
-.auth-card {
-    background: var(--card); padding: 2.5rem; border-radius: 16px;
-    width: 100%; max-width: 400px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
-}
+/* Navbar */
+.navbar { display: flex; justify-content: space-between; align-items: center; padding: 0 2rem; height: 70px; background: var(--card); border-bottom: 1px solid var(--border); position: sticky; top: 0; }
+.nav-center { display: flex; gap: 5px; }
+.menu-btn { background: none; border: none; color: var(--text-muted); padding: 10px 15px; cursor: pointer; border-radius: 6px; }
+.menu-btn:hover { background: #334155; color: var(--primary); }
 
-.brand { color: var(--primary); font-weight: 800; font-size: 1.8rem; letter-spacing: -1px; }
+/* Layout Geral */
+.content-area { padding: 2rem; max-width: 1300px; margin: auto; }
+.card { background: var(--card); padding: 1.5rem; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 1rem; }
 
-.field { margin-bottom: 1.2rem; }
-.field label { display: block; font-size: 0.85rem; margin-bottom: 6px; color: var(--text-muted); }
-.field input {
-    width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border);
-    background: #0f172a; color: white; outline: none; transition: 0.2s;
-}
-.field input:focus { border-color: var(--primary); }
+/* Forms */
+.field { margin-bottom: 1rem; }
+.field label { display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px; }
+.field input, .field select { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: white; }
+.field-check { display: flex; align-items: center; gap: 10px; margin-bottom: 1rem; }
 
-.helper-links { display: flex; justify-content: space-between; margin-bottom: 2rem; }
-.helper-links a { font-size: 0.75rem; color: var(--primary); text-decoration: none; font-weight: 500; }
+.actions { display: flex; gap: 10px; margin-top: 1rem; }
+.btn-save { background: var(--primary); color: #0f172a; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: bold; flex: 2; }
+.btn-cancel { background: transparent; border: 1px solid var(--border); color: var(--text); padding: 10px; border-radius: 6px; cursor: pointer; flex: 1; }
+.btn-exit { background: var(--danger); border: none; color: white; padding: 6px 12px; border-radius: 4px; cursor: pointer; }
 
-/* Botões Padronizados */
-.actions { display: flex; gap: 12px; }
-.btn-save { background: var(--primary); color: #0f172a; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; flex: 2; }
-.btn-save:hover { background: var(--primary-hover); }
-.btn-cancel { background: transparent; border: 1px solid var(--border); color: var(--text); padding: 12px; border-radius: 8px; cursor: pointer; flex: 1; }
+/* Dashboard */
+.filter-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 15px; }
+.dashboard-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 20px; }
+.pizza-placeholder { height: 250px; border: 2px dashed var(--border); display: flex; align-items: center; justify-content: center; color: var(--text-muted); border-radius: 50%; width: 250px; margin: auto; }
 
-/* Header tlDashboard */
-.navbar {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 0 2.5rem; height: 75px; background: var(--card);
-    border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100;
-}
-.nav-center { display: flex; gap: 8px; }
-.menu-btn {
-    background: none; border: none; color: var(--text-muted); padding: 10px 15px;
-    cursor: pointer; font-size: 0.95rem; border-radius: 6px; transition: 0.2s;
-}
-.menu-btn:hover, .menu-btn.active { color: var(--primary); background: #334155; }
+/* Sub-abas */
+.sub-nav { display: flex; gap: 10px; margin-bottom: 1.5rem; }
+.sub-nav button { background: #334155; border: none; color: white; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
 
-.nav-right { display: flex; align-items: center; gap: 15px; }
-#user-logged-name { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); }
-.btn-exit { background: #334155; color: var(--danger); border: 1px solid var(--danger); padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: bold; }
-
-/* Mensagens de Alerta (Toast) */
-#toast-area { position: fixed; bottom: 30px; right: 30px; display: flex; flex-direction: column; gap: 10px; z-index: 9999; }
-.toast {
-    background: #1e293b; border-right: 4px solid var(--primary); color: white;
-    padding: 16px 24px; border-radius: 8px; min-width: 250px;
-    box-shadow: 0 10px 15px rgba(0,0,0,0.3); animation: slideIn 0.4s ease forwards;
-}
-@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+/* Toasts */
+#toast-area { position: fixed; bottom: 20px; right: 20px; z-index: 999; }
+.toast { background: var(--card); border-left: 4px solid var(--primary); padding: 15px 25px; margin-top: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); animation: slide 0.3s ease; }
+@keyframes slide { from { transform: translateX(100%); } to { transform: translateX(0); } }
