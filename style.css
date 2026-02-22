@@ -1,0 +1,69 @@
+:root {
+    --bg-dark: #0f172a;
+    --card-bg: #1e293b;
+    --primary: #38bdf8;
+    --text: #f8fafc;
+    --text-muted: #94a3b8;
+    --success: #22c55e;
+    --danger: #ef4444;
+}
+
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--text);
+    overflow: hidden;
+}
+
+.central-flex {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.card {
+    background: var(--card-bg);
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    width: 350px;
+}
+
+.input-group {
+    margin-bottom: 1.5rem;
+}
+
+label { display: block; margin-bottom: 0.5rem; color: var(--text-muted); }
+
+input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #334155;
+    background: #0f172a;
+    color: white;
+    box-sizing: border-box;
+}
+
+.actions { display: flex; gap: 10px; margin-top: 1rem; }
+
+.btn-save { background: var(--primary); color: #000; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; flex: 1; }
+.btn-cancel { background: transparent; border: 1px solid var(--text-muted); color: var(--text); padding: 10px 20px; border-radius: 6px; cursor: pointer; flex: 1; }
+
+/* Layout App */
+#main-layout { display: flex; height: 100vh; }
+.sidebar { width: 250px; background: var(--card-bg); padding: 20px; border-right: 1px solid #334155; }
+.sidebar ul { list-style: none; padding: 0; }
+.sidebar li { padding: 12px; margin-bottom: 5px; cursor: pointer; border-radius: 8px; transition: 0.3s; }
+.sidebar li:hover { background: #334155; }
+
+.content { flex: 1; padding: 40px; overflow-y: auto; }
+
+/* Toasts */
+#toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 1000; }
+.toast { padding: 15px 25px; border-radius: 8px; margin-top: 10px; background: var(--card-bg); border-left: 5px solid var(--primary); animation: slideIn 0.3s ease-out; }
+
+@keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+.hidden { display: none !important; }
